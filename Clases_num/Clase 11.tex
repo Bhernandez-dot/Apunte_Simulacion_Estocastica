@@ -1,0 +1,238 @@
+\documentclass[a4paper]{article}
+
+%% Language and font encodings
+\usepackage[english]{babel}
+\usepackage[utf8x]{inputenc}
+\usepackage[T1]{fontenc}
+
+
+%% Sets page size and margins
+\usepackage[a4paper,top=3cm,bottom=2cm,left=3cm,right=3cm,marginparwidth=1.75cm]{geometry}
+
+%% Useful packages
+\usepackage{amsmath}
+\usepackage{graphicx}
+\usepackage{tikz,pgfplots}
+\usepackage[colorinlistoftodos]{todonotes}
+\usepackage[colorlinks=true, allcolors=blue]{hyperref}
+\usepackage{amsfonts}
+\usepackage{bbm}
+\usepackage{dsfont}
+\usepackage{cancel}
+\usepackage{tikz,tkz-base,tkz-fct}
+\usepackage{pgfplots}
+\newcommand{\prob}{\mathbb{P}}
+\newtheorem{definicion}{Definición}
+\newtheorem{teorema}{Teorema}
+\newtheorem{ejemplo}{Ejemplo}
+\DeclareMathOperator*{\argmax}{Arg\,max}
+\newtheorem{lem}{Lema}
+\newtheorem{prop}{Proposici\'on}
+\newtheorem{cor}{Corolario}
+\newtheorem{dem}{Demostración}
+\numberwithin{equation}{subsection}
+\numberwithin{definicion}{subsection}
+\newtheorem{obs}{Observación}
+
+
+%% Aquí se pueden definir nuevas abreviaturas para algunos comandos
+
+\def\sen{{\rm sen\mspace{1.5mu}}}
+\def\C{\mathbb C}
+\def\R{\mathbb R}
+\def\N{\mathbb N}
+\def\Q{\mathbb Q}
+\def\Z{\mathbb Z}
+\def\V{\mathbb V}
+\def\E{\mathbb E}
+\def\to{\rightarrow}
+\newcommand{\pb}{\mathbb{P}}
+
+
+
+\newcommand{\ds}{\displaystyle}
+
+
+%Para hacer normas en tex
+
+\providecommand{\norm}[1]{\lVert#1\rVert}
+\providecommand{\normm}[1]{\bigg\lVert#1\bigg\rVert}
+
+
+%integrales bacanes
+\usepackage{ esint }
+
+%Para poner en negrita en modo matemático
+\newcommand{\negri}{\boldsymbol}
+
+
+
+
+\title{Simulación Estocástica}
+\author{Clase 11}
+\date{27 de agosto de 2019}
+
+\begin{document}
+\maketitle
+
+\begin{cor}
+$x$ es recurrente si y sólo si
+\[\sum_{n=0}^{\infty}\left(P^n\right)_{xx} = +\infty.\]
+\end{cor}
+\textbf{Demostración: }Notemos que
+\[\E_x(N_x) = \E_x\left(\sum_{n\geq 1}\mathbbm{1}_{\{X_n=x\}}\right) = \sum_{n\geq 1}\prob_x\left(X_n=x\right)\]
+\[= \sum_{n\geq 1}\left(P^n\right)_{xx}.\]
+Si $x$ es recurrente, entonces $N_x=\infty$ $\prob_x$-c.s., luego $\E(N_x)=\infty$, probando ($\Longrightarrow$).\\ \newline
+Recíprocamente, si $x$ es transiente, por la parte \textbf{b)} de la proposición anterior, se tiene que $\E_x(N_x)<\infty$, con lo cual se prueba ($\Longleftarrow$).\\
+\rule{0.7em}{0.7em}\\ \newline
+
+\begin{definicion}
+Decimos que un estado $y$ es accesible desde el estado $x$ (y anotamos $x\rightarrow y$), siempre que exista $n\geq 0$ tal que $\prob_x\left(X_n=y\right)>0$. Decimos que $x$ e $y$ se comunican (y escribimos $x\leftrightarrow y$) cuando $y\rightarrow x$,  además de $x\rightarrow y$. 
+\end{definicion}
+
+La relación $x\leftrightarrow y$ es una relación de equivalencia, entonces podemos particionar el conjunto $E$ en clases de equivalencia definidas por la relación $\leftrightarrow$.\\
+Notamos que $x\leftrightarrow y$ $\Longleftrightarrow$ $\exists\,n\geq 0$ tal que $\left(P^n\right)_{xy}>0$, dado que $\prob_x\left(X_n=y\right)=\left(P^n\right)_{xy}$.  \\ \newline
+
+\begin{teorema}
+Sea $C\subset E$ una clase de equivalencia de la relación $\leftrightarrow$. Entonces todos los estados de $C$ son recurrentes, o bien, son todos transientes.
+\end{teorema}
+
+\textbf{Demostración: }\cite[págs. 26- Teo.4.5]{Pard}\\ \newline
+Luego, las clases de equivalencia definidas por $\leftrightarrow$, se les llaman clases de recurrencia.
+
+\begin{definicion}
+Una $(\mu,P)$-C.M. se dice irreducible cuando $E$ consiste sólo de una clase de equivalencia . Se dirá irreducible y recurrente si es reducible y además esa calse de equivalencia es  recurrente.
+\end{definicion}
+
+\begin{prop}
+Toda cadena de Markov irreducible sobre un espacio de estados $E$ finito, es recurrente.
+\end{prop}
+
+\textbf{Demostración: }Dado que $E$ es finito, al menos un estado debe ser visitado infinitas veces con probabilidad positiva, por lo tanto,  casi seguramente, por la proposición anterior, este estado (y todos los de la calse) es (son) recurrente.\\
+\rule{0.7em}{0.7em}\\ \newline
+
+\subsection{Casos Irreducibles y Recurrentes}
+En esta sección, asumiremos que una cadena es irreducible y recurrente. Empezaremos estudiando las \textit{excursiones} de una cadena entre dos retornos sucesivos al mismo estado $x$:
+\[\varepsilon_k = (X_{T_x^k},X_{T_x^k+1},\cdots,X_{T_x^{k+1}}),\hspace{0.3cm}k\geq 0.\]
+Tales excursiones son secuencias aleatorias de largo aleatorio, al menos 2 y finito, compuesta de elementos $E\textbackslash{}\{x\}$, excepto por el primero y el último, que son iguales a $x$. Denotamos como $U$ al conjunto de secuencias
+\[u = (x,x_1,\cdots,x_n,x),\]
+con $n\geq 0$, $x_l\neq x$, $1\leq l \leq n$. $U$ es numerable, y es el conjunto de todas las posibles excursiones $\varepsilon_0,\varepsilon_1,...$. Por lo tanto, estas variables aleatorias toman valores en un conjunto numerable, y sus leyes de probabilidad están caracterizadas por las cantidades
+\[\prob\left(\varepsilon_k = u\right),\hspace{0.3cm}u\in U.\]
+
+\begin{prop}
+Bajo $\prob_x$, la secuencia $(\varepsilon_0,\varepsilon_1,\cdots)$ de excursiones es $i.i.d.$, en otras palabras, existen probabilidades $\{p_u;\,u\in U\}$ sobre $U$ tal que, para todo $k>0$, $u_0,u_1,\cdots,u_k\,\in U$,
+\[\prob_x\left(\varepsilon_0 = u_0,\,\varepsilon_1 = u_1,\,\cdots,\,\varepsilon_k = u_k\right) = \prod_{l=0}^k p_{u_l}.\]
+\end{prop}
+
+\textbf{Demostración: }Esto es consecuencia de la propiedad fuerte de Markov. En efecto,\newline $\{\varepsilon_0 = u_0\}\in \mathcal{F}_{T_x}$, y el evento
+\[\{\varepsilon_1 = u_1,\cdots,\varepsilon_k = u_k\}\]
+es de la forma
+\[\{X_{T_x+1}=x_1,\cdots,X_{T_x+p}=x_p\},\]
+pára algún $p>0$, $x_1,\cdots,x_p\,\in E$. En consecuencia,
+\[\prob_x\left(\varepsilon_0 = u_0,\varepsilon_1 = u_1,\cdots, \varepsilon_k = u_k\right)\]
+\[= \prob_x\left(\{\varepsilon_0 = u_0\}\cap\{X_{T_x+1}=x_1,\cdots,X_{T_x +p}=x_p\}\,|\,T_x <\infty\right)\]
+\[\prob_x\left(\varepsilon_0 =u_0\right)\prob_x\left(X_1=u_1,\cdots,X_p =x_p\right)\]
+\[=\prob_x\left(\varepsilon_0=u_0\right)\prob_x\left(\varepsilon_0=u_1,\cdots,\varepsilon_{k-1}=u_k\right)\]
+\[=\prob_x\left(\varepsilon_0 =u_0\right)\prob_x\left(\varepsilon_0=u_1\right)\cdots\prob_x\left(\varepsilon_{k-1}=u_k\right)\]
+\[=p_{u_0}p_{u_1}\cdots p_{u_k},\]
+donde $\{p_u;\,u\in U\}$ es la ley de $\varepsilon_0$ bajo $\prob_x$.\\
+\rule{0.7em}{0.7em}\\ \newline
+Una medida (no necesariamente de probabilidad) sobre el conjunto $E$, es un 'vector fila' $\{\gamma_x;\,x\in E\}$ tal que $0\leq \gamma_x < \infty$, para todo $x$. Cuando la medida es finita, $\sum_{x\in E}\gamma_x <\infty$, podemos normalizarla, haciéndola medida de probabilidad sobre $E$, $\left(\gamma_x / \sum_{z\in E}\gamma_z\, ;\,x\in E\right)$.\\ Una medida $\gamma$ se dice \textit{invariente} (respecto a la matriz de transición $P$) cuando
+\[\gamma P = \gamma,\]
+esto es, 
+\[\sum_{y\in E}\gamma_y P_{yx} = \gamma_x,\hspace{0.3cm}\forall\,x\in E.\]
+Una medida $\gamma$ se dice \textit{estríctamente posita} si $\gamma_x >0$, para todo $x\in E$.\\ \newline
+
+Una medida $\gamma$ es invariante si y sólo si  la cadena $(\gamma,P)$ cumple $\mathcal{L}(X_n)=\gamma$, $\forall\,n\in \N$. Esto es, $\gamma$ es la ley de $X_n$ para todo valor de $n$.\\ Dado que es para todo $n$, $\{X_{n+m};\,m\in\N\}$ también es $(\gamma,P)$-C.M.\\ \newline
+\textbf{Observación: }Una \textbf{probabilidad} invariante es una medida de probabilidad  $\pi$, que satisface $\pi P = \pi$, o equivalentemente, para todo $x\in E$,
+\[\sum_{y\neq x}\pi_y P_{yx} = \pi_x\left(1- P_{xx}\right)\]
+esto es,
+\[\prob\left(X_n\neq x ,X_{n+1}=x\right) = \prob\left(X_n = x,X_{n+1}\neq x\right)\]
+lo que significa que en el equilibrio, el número medio de salidas  desde el estado $x$ entre los tiempo $n$ y $n+1$ es igual al número medio de llegadas al estado $x$ entre los mismos tiempos. Esta es la intuición que caracteriza a la probabilidad invariante.
+
+\begin{teorema}
+Sea $\{X_n\,;\,n\in N\}$ una C.M. irreducible y recurrente. Entonces existe una medida invariante $\gamma$ estrictamente positiva, cual es única salvo constantes multiplicativas.
+\end{teorema}
+
+\textbf{Demostración: }Para probar la existencia, sea $\gamma_y^x$ el número esperado de visitas al estado $y$ durante la excursión $\varepsilon_0$ partiendo de $x$, esto es,
+\[\gamma_y^x = \E_x\left(\sum_{n=1}^{T_x}\mathbbm{1}_{X_n=y}\right)\]
+\[= \sum_{n=1}^{\infty}\prob_x \left(X_n = y,\, n\leq T_x\right)\]
+\[=\sum_{z\in E}\sum_{n=1}^{\infty}\prob_x(\{X_{n-1}=z,\,n-1<T_x\}\cap\{X_n = y\})\]
+\[=\sum_{z\in E}\left(\sum_{n=2}^{\infty}\prob_x(X_{n-1} = z,\,n-1\leq T_x)\right)P_{zy}\]
+\[= (\gamma^x P)_y\]
+Notamos que es necesario usar la recurrencia para llegar a la penúltima igualdad. Ahora haremos uso de la irreducibilidad de la cadena. Existen $n,m$ tal que $(P^n)_{xy}>0$, $(P^m)_{yx}>0$. Por lo tanto, dado que $\gamma_x^x = 1$,
+\[0<(P^n)_{xy} = \gamma_x^x (P^n)_{xy}\leq (\gamma^x P^n)_y = \gamma_y^x,\]
+\[\gamma_y^x(P^n)_{yx}\leq (\gamma^x P^m)_x = \gamma_x^x = 1.\]
+En consecuencia, $\gamma^x$ es una medida estrictamente positiva, que satisface $\gamma_x^x =1$.\\ Para asegurar la unicidad, sea $\lambda$ una medida invariante tal que $\lambda_x = 1$. Debemos mostrar primero que $\lambda \geq \gamma^x$, luego $\lambda = \gamma^x$. Notemos que esta parte de la demostración usa sólamente la irreducibilidad (y no la recurrencia). Tenemos
+\[\lambda_y = P_{xy} + \sum_{z_1 \neq x}\lambda_{z_1}P_{z_1 y}\]
+\[= P_{xy} + \sum_{z_1neq x}P_{xz_1}P_{z_1y} + \sum_{z_1,z_2 \neq x}\lambda_{z_2}P_{z_2z_1}P_{z_1y}\]
+\[\geq \sum_{n=0}^{\infty}\sum_{z_1,\cdots,z_n\,\neq x}P_{xz_n}P_{z_nz_{n-1}}\cdots P_{z_1y}\]
+\[= \sum_{n=0}^{\infty}\prob_x\left(X_{n+1} =y,\, T_x \geq n+1\right)\]
+\[= \gamma_y^x.\]
+Por lo tanto, definamos $\mu = \lambda -\gamma^x$ que también es una medida invariante, y $\mu_x =0$. Sea $y\in E$, y $n$ tal que $(P^n)_{yx}>0$. Entonces
+\[0 = \mu_x = \sum_{z \in E}\mu_z(P^n)_{zx} \geq \mu_y(P^n)_{yx}.\]
+Por lo tanto $mu_y = 0$, y esto se cumple para todo $y \in E$.\\
+\rule{0.7em}{0.7em}\\ \newline
+Sea $m_x = \E_x(T_x)$. Si esta cantidad es finita, entonces el estado $x$ se dirá \textit{recurrente positivo}, en otro caso se dirá \textit{recurrente nulo}.
+
+\begin{teorema}
+Sea $(X_n)_{n\in \N}$ una C.M. irreducible. Un estado $x$ es recurrente positivo si y sólo si todos los estados son recurrentes positivos, si y sólo si existe $\pi$ una probabilidad invariante.\\ \newline
+Además, $\pi$ cumple que
+\[\pi = (\pi_x = m_x^{-1},\,x\in E).\]
+\end{teorema}
+
+\textbf{Demostración: }Notemos que
+\[m_x = \sum_{y\in E}\gamma_y^x.\]
+Por lo tanto si $x$ es recurrente positivo, entonces la probabilidad $\pi = (\pi_y = \gamma_y^x/m_x,\,y\in E)$ es invariante.\\ 
+
+Por otro lado, si $\pi$ es una probabilidad invariante, de la irreducibilidad, $\pi$ es estrictamente positiva\footnote{Ver demostración de teorema anterior.}, por lo tanto si $x$ es un estado arbitrario, $\lambda = (\lambda_y = \pi_y / \pi_x,\, y \in E)$ es una medida invariante que satisface $\lambda_x =1$. De la irreducibilidad y de la demostración de unicidad del teorema anterior,
+\[m_x = \sum_{y\in E}\gamma_y^x = \sum_{y\in E}\frac{\pi_y}{\pi_x} = \frac{1}{\pi_x} <\infty.\]
+Por lo tanto, $x$ es recurrente positiva, al igual que todos los demás estados.\\
+\rule{0.7em}{0.7em}\\ \newline
+Los dos último teoremas marcan una clara dicotomía en el siguiente sentido: en el caso \textit{irreducible y recurrente}, la cadena es \textit{recurrente positiva} cuando existe una \textit{probabilidad invariante}, y será \textit{recurrente nula} si una (por ende, todas) \textit{medida invariante} tiene masa total infinita ($\sum_i \pi_i = +\infty$). En particular, si $|E|<\infty$, entonces no existe estado recurrente nulo, más bien, cualquier estado recurrente es recurrente positivo.
+
+\begin{cor}
+Sea $\{X_n\}$ una cadena de Markov irreducible que es recurrente positiva. Para cualquier $x \in E$, asociamos $T_x =\inf\{n>0;\,X_n=x\}$. Entonces para todo $y\in E$,
+\[\E_y(T_x) < \infty.\]
+\end{cor}
+
+\textbf{Demostración: }Notemos que
+\[T_x \geq T_x\mathbbm{1}_{T_y<T_x},\]
+de donde, tomando esperanza con respecto a $\prob_x$,
+\[m_x \geq \E_x(T_x\,|\,T_y<T_x)\prob_x(T_y<T_x).\]
+Pero, usando la propiedad fuerte de Markov; $\E_x(T_x\,|\,T_y<T_x) > \E_y(T_x)$, y de la irreducibilidad que $\prob_x(T_y<T_x) >0$, y concluímos.\\
+\rule{0.7em}{0.7em}\\ \newline
+\textbf{Observación: (caso no-irreducible)} Por simplicidad, consideremos sólo el caso $|E|<\infty$. Existe al menos una clase recurrente (que es recurrente positiva), por lo tanto existe al menos una probabilidad invariante. Cualquier probabilidad invariante cobra sólo estados recurrentes. Si sólo existe una clase recurrente, entonces la cadena posee sólo una probabilidad invariante. En otro caso, podemos asociarle a cada clase recurrente una única probabilidad invariante  con soporte en tal clase, y toda medida invariante son combinaciones convexas de estas, que conformarán puntos extremos de las combinaciones. Por lo tanto, si existen al menos dos clases recurrentes diferentes, existirá una cantidad no numerable de probabilidades invariantes.\\ \newline
+Restrinjámonos, nuevamente, al caso irreducible. Ahora podemos enunciar el teorema ergódico para C.M.H., cual es una generalización de la L.G.N.
+
+\begin{teorema}
+Sea $(X_n)_{n\in\N}$ una C.M.H. irreducible y recurrente positiva. Sea $\pi = (\pi_x\,,\,x\in E)$ su única probabilidad invariante. Si $f:E\rightarrow \R$ es una función acotada, entonces
+\[\frac{1}{n}\sum_{k=1}^n f(X_k)\, \xrightarrow{n\rightarrow \infty}\,\sum_{x\in E}f(x)\pi_x = \int_E f d\pi,\hspace{0.6cm}\prob-c.s.\]
+\end{teorema}
+
+\textbf{Demostración: }Como $f$ es acotada, existe $c$ tal que $|f(x)|\leq c$, para cada $x\in E$. Sea
+\[N_x(n) = \sum_{1\leq k\leq n}\mathbbm{1}_{X_k=x}\]
+el número de retornos al estado $x$ antes del tiempo $n$. Deseamos estudiar el límite, cuando $n\rightarrow \infty$ de
+\[\frac{N_x(n)}{n}.\]
+Sea $S_x^0,S_x^1,\cdots,S_x^k,\cdots$ los largos de las excursiones $\varepsilon_0,\varepsilon_1,\cdots, \varepsilon_k,\cdots$ partiendo del estado $x$. Tenemos
+\[S_x^0 + \cdots + S_x^{N_x(n)-1}\leq n < S_x^0+\cdots + S_x^{N_x(n)}.\]
+Por lo tanto
+\[\frac{S_x^0 + \cdtos + S_x^{N_x(n)-1}}{N_x(n)}\leq \frac{n}{N_x(n)}\leq \frac{S_x^0 + \cdots + S_x^{N_x(n)}}{N_x(n)}.\]
+Pero, dado que las variables aleatorias $\varepsilon_k$ son $i.i.d.$ (por lo tanto también lo son $S_x^k$), cuando $n\rightarrow \infty$,
+\[\frac{S_x^0+\cdots+ S_x^{N_x(n)}}{N_x(n)} \rightarrow \E_x(T_x) = m_x,\hspace{0.3cm}\prob_x-c.s.\]
+dado que $N_x(n)\rightarrow +\infty$, $\prob_x$-casi seguramente. Entonces, nuevamente por la ley de los grandes números,
+\[\frac{n}{N_x(n)}\rightarrow m_x,\hspace{0.3cm}\prob_x-c.s.,\]
+esto es,
+\[\frac{N_x(n)}{n}\rightarrow\frac{1}{m_x},\hspace{0.3cm}\prob_x-c.s.\]
+Esta convergencia también es cierta $\prob_{\mu}$-c.s., para toda ley inicial $\mu$, dado que el límite de $N_x(n)/n$ es el mismo para las cadenas $\{N_n;\,n\geq 0\}$ y $\{X_{T_x+n};\,n\geq 0\}$.\\ \newline
+Ahora sea $F\subset E$. Definimos $\Bar{f} = \sum_{x\in E}\pi_xf(x)$, $c=\sup_x|f(x)|$. Tenemos que
+\[\left| \frac{1}{n}\sum_{k=1}^n f(X_k) - \Bar{f}\right| = \left| \sum_{x\in E}\left(\frac{N_x(n)}{n}-\pi_x\right)f(x)\right|\]
+\[\leq c\sum_{x\in F}\left|\frac{N_x(n)}{n}-\pi_x\right| + c\sum_{x\notin F}\left(\frac{N_x(n)}{n} + \pi_x\right)\]
+\[= c\sum_{x\in F}\left|\frac{N_x(n)}{n} -\pi_x\right| + c\sum_{x\in F}\left(\pi_x - \frac{N_x(n)}{n}\right) + 2c\sum_{x \notin F}\pi_x\]
+\[\leq 2c \sum_{x \in F}\left| \frac{N_x(n)}{n}-\pi_x\right| + 2c\sum_{x \notin F}\pi_x.\]
+Basta con elegir un conjunto finito $F$ tal que $\sum_{x \notin F}\pi_x\leq \epsilon/4c$, y un $N(\omega)$ tal que, para todo $n\geq N(\omega)$,
+\[\sum_{x\in F}\left|\frac{N_x(n)}{n}-\pi_x\right| \leq \frac{\epsilon}{4c},\]
+así probamos el resultado.\\
+\rule{0.7em}{0.7em}\\ \newline
+
+\end{document}

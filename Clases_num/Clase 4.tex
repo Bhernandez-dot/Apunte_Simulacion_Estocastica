@@ -1,0 +1,214 @@
+\documentclass[a4paper]{article}
+
+%% Language and font encodings
+\usepackage[english]{babel}
+\usepackage[utf8x]{inputenc}
+\usepackage[T1]{fontenc}
+
+
+%% Sets page size and margins
+\usepackage[a4paper,top=3cm,bottom=2cm,left=3cm,right=3cm,marginparwidth=1.75cm]{geometry}
+
+%% Useful packages
+\usepackage{amsmath}
+\usepackage{graphicx}
+\usepackage{tikz,pgfplots}
+\usepackage[colorinlistoftodos]{todonotes}
+\usepackage[colorlinks=true, allcolors=blue]{hyperref}
+\usepackage{amsfonts}
+\usepackage{bbm}
+\usepackage{dsfont}
+\usepackage{cancel}
+\usepackage{tikz,tkz-base,tkz-fct}
+\newcommand{\prob}{\mathbb{P}}
+\newtheorem{definicion}{Definición}
+\newtheorem{teorema}{Teorema}
+\newtheorem{ejemplo}{Ejemplo}
+\DeclareMathOperator*{\argmax}{Arg\,max}
+\newtheorem{lem}{Lema}
+\newtheorem{prop}{Proposici\'on}
+\newtheorem{cor}{Corolario}
+\newtheorem{dem}{Demostración}
+\numberwithin{equation}{subsection}
+\numberwithin{definicion}{subsection}
+\newtheorem{obs}{Observación}
+
+
+%% Aquí se pueden definir nuevas abreviaturas para algunos comandos
+
+\def\sen{{\rm sen\mspace{1.5mu}}}
+\def\C{\mathbb C}
+\def\R{\mathbb R}
+\def\N{\mathbb N}
+\def\Q{\mathbb Q}
+\def\Z{\mathbb Z}
+\def\V{\mathbb V}
+\def\E{\mathbb E}
+\def\to{\rightarrow}
+\newcommand{\pb}{\mathbb{P}}
+
+
+
+\newcommand{\ds}{\displaystyle}
+
+
+%Para hacer normas en tex
+
+\providecommand{\norm}[1]{\lVert#1\rVert}
+\providecommand{\normm}[1]{\bigg\lVert#1\bigg\rVert}
+
+
+%integrales bacanes
+\usepackage{ esint }
+
+%Para poner en negrita en modo matemático
+\newcommand{\negri}{\boldsymbol}
+
+
+
+
+\title{Simulación Estocástica}
+\author{Clase 4}
+\date{6 de agosto de 2019}
+
+\begin{document}
+\maketitle
+
+\section{Resumen clase anterior}
+\begin{itemize}
+    \item Función característica.\\ \newline
+$\forall\,\mu\in\mathcal{P}(\R)$: 
+\[\hat{\mu}(t) := \int_{\R}e^{itx}\mu(dx) = \int_{R}cos(tx)\mu(dx) + i\,\int_{\R}sen(tx)\mu(dx)\]
+Para variables aleatorias en $\R$:
+\[\varphi_X(t) = \widehat{\mathcal{L}(X)}(t) = \E(cos(tX)) + i\,\E(sin(tX))\]
+
+    \item Fórmula de inversión: Sea $X$ variable aleatoria en $\R$. Luego para todos $a<b$, se tiene:
+    \[\pb(a<X<b) + \frac{\pb(X=a)+\pb(X=b)}{2} = \lim_{T\to \infty} \frac{1}{2\pi}\int_{-T}^{T}\frac{e^{-ita}-e^{-itb}}{it}\varphi_{X}(t)dt\]
+\end{itemize}
+
+\textbf{Demostración (fórmula de Inversión):} Sea $\mu = \mathcal{L}(X)$. Denotemos por $I_T$ a la siguiente integral:
+\[I_T = \int_{-T}^{T}\frac{1}{2\pi}\frac{e^{-ita}-e^{-itb}}{it}\varphi_X(t) dt\]
+Reemplazamos la definición de función característica:
+\[I_T = \int_{-T}^{T}\frac{e^{-ita}-e^{-itb}}{2\pi it}\int_{\R}e^{itx}\mu(dx) dt = \int_{\R}\int_{-T}^{T}\frac{e^{-ita}-e^{-itb}}{2\pi it}e^{itx}dt\mu(dx)\]
+Usando la identidad de Euler para números complejos; $e^{i\alpha} = cos(\alpha)+i\,sin(\alpha)$, tenemos que:
+\[I_T = \int_{\R}\int_{-T}^{T}\left(\frac{cos(t(x-a))-cos(t(x-b))}{2\pi it} + i\,\frac{sin(t(x-a))-sin(t(x-b))}{2\pi it}\right)dt \mu(dx)\]
+Usando que la función \textit{coseno} es una función par, y la función identidad es impar, tenemos que la expresión:
+\[\frac{cos(t(x-a))-cos(t(x-b))}{t}\]
+es una función impar para la variable $t$, por lo tanto; toda integral sobre un intervalo simétrico es nula.
+\[\frac{1}{2\pi i}\int_{-T}^{T}\frac{cos(t(x-a))-cos(t(x-b))}{t} dt = 0\]
+Del mismo modo, la función \textit{seno} y la función identidad son funciones impares, por lo tanto la expresión:
+\[\frac{sin(t(x-a))-sin(t(x-b))}{t}\]
+es una función par, por lo tanto; para toda integral sobre un intervalo simétrico, tenemos que:
+\[\frac{1}{2\pi i}\int_{-T}^{T}\frac{sin(t(x-a))-sin(t(x-b))}{t}dt = \frac{2}{2\pi i}\int_{0}^{T}\frac{sin(t(x-a))-sin(t(x-b))}{t}dt\]
+Por lo tanto la integral $I_T$ queda de la siguiente forma:
+\[I_T = \int_{\R}\frac{2i}{2\pi i}\int_{0}^{T}\frac{sin(t(x-a))-sin(t(x-b))}{t}dt \mu(dx)=\int_{\R}\left(\frac{1}{\pi }\int_{0}^{T}\frac{sin(t(x-a))-sin(t(x-b))}{t}dt\right) \mu(dx)\]
+\[= \int_{\R}\frac{1}{\pi}\left(\int_{0}^{T}\frac{sin(t(x-a))}{t}dt - \int_{0}^{T}\frac{sin(t(x-b))}{t}dt\right) \mu(dx)\]
+
+Para El siquiente paso ocuparemos el siguiente lema:
+\begin{lem} Sea $c\in\R$:
+\[\lim_{T \to \infty}\frac{1}{\pi}\int_{0}^{T}\frac{sin(ct)}{t}dt = \begin{cases}
+                -\frac{1}{2} & si\hspace{0.2cm}c<0\\
+                \,\frac{1}{2} & si\hspace{0.2cm}c>0\\
+                \,0 & si\hspace{0.2cm} c=0
+                \end{cases}\]
+\end{lem}
+De esta forma, el límite de $I_T$ dependerá de los valores de $x$ respecto a $a$ y $b$ (tomando $c=x-a$ o $c=x-b$). Luego, si $a<b$, tenemos que:
+\[\lim_{T\to \infty}\frac{1}{\pi}\left(\int_{0}^{T}\frac{sin(t(x-a))}{t}dt - \int_{0}^{T}\frac{sin(t(x-b))}{t}dt\right) = 0\]
+Para todo $x \in (-\infty ,a)\cup (b,\infty)$. Más aún, basta con verificar el signo de $x-a$ o $x-b$ en cada caso para probar que:
+\[\lim_{T\to \infty}\frac{1}{\pi}\left(\int_{0}^{T}\frac{sin(t(x-a))}{t}dt - \int_{0}^{T}\frac{sin(t(x-b))}{t}dt\right) = \begin{cases}
+\,\frac{1}{2} & si\hspace{0.2cm}x=a\\
+\,\frac{1}{2} & si\hspace{0.2cm}x=b\\
+\,1 & si\hspace{0.2cm}x\in(a,b)\\
+\,0 & si\hspace{0.2cm}x\in(-\infty,a)\cup(b,\infty)
+\end{cases}\]
+Por lo tanto el límite de $I_T$ se reduce a:
+\[\lim_{T\to \infty}I_T = \int_{\R}\lim_{T\to \infty}\frac{1}{\pi}\left(\int_{0}^{T}\frac{sin(t(x-a))}{t}dt - \int_{0}^{T}\frac{sin(t(x-b))}{t}dt\right)\mu(dx)\]
+\[= \int_{\{a\}}\frac{1}{2}\mu(dx) + \int_{\{b\}}\frac{1}{2}\mu(dx) + \int_{(a,b)}1\mu(dx) = \mu((a,b)) + \frac{\mu(\{a\})+\mu(\{b\})}{2}\]
+\rule{0.7em}{0.7em}
+
+\begin{cor}
+Si $X$ e $Y$ son variables aleatorias tales que $\varphi_X(t) = \varphi_Y(t)$ para todo valor de $t$, entonces $\mathcal{L}(X)=\mathcal{L}(Y)$.
+\end{cor}
+
+\begin{teorema} Sea $\mu\in\mathcal{P}(\R)$:
+\begin{itemize}
+    \item Si $\int |x|^n \mu(dx)\,<\,\infty$ para cierto $n\in\N$, entonces $\varphi$ es $n$ veces derivable y:
+    \[\varphi^{(n)}(t) =\int (ix)^n e^{itx}dt\]
+    En particular se tiene la igualdad: $\varphi^{(n)}(0)=i^n \int x^n \mu(dx)$.
+    \item Si $\varphi^{(2n)}(0)$ existe para cierto $n\in\N$, entonces $\int x^{2n}\mu(dx)\,<\,\infty$.
+\end{itemize}
+\end{teorema}
+\textbf{(demostración propuesta.)}\\ \newline
+De manera recíproca, conocer la función característica, $\hat{\mu}$, nos proporciona conocimiento acerca de la forma en que la distribución reparte valores sobre el conjunto y, gracias al último teorema, es posible saber el valor de los momentos asociados en caso de existir. El siguiente resultado analiza el comportamiento de la función característica acercándose "a infinito" y vincula la integrabilidad de la función con la existencia de una densidad para $\mu$ con respecto a la medida de Lebesgue.
+
+\begin{teorema}[Transformada de Fourier para la función característica] Sea $\mu\in\mathcal{P}(\R)$, $\varphi = \hat{\mu}$. Supongamos la condición:
+\[\int_{\R}|\varphi (t)|dt\,<\,\infty\]
+Entonces existe $f$, densidad de $\mu$. Es decir; $\mu(dx) = f(x)dx$, y además se tiene que:
+\[f(x) = \frac{1}{2\pi}\int_{\R}e^{-itx}\varphi (t) dt\]
+\end{teorema}
+\textbf{Demostración: }El primer paso para ver la existencia de una densidad es comprobar que la medida de probabilidad $\mu$ es \textit{no atómica}, es decir, que para cada elemento $a\in\R$, la medida del síngleton es cero: $\mu(\{a\})=0$.\\
+Usando la fórmula de inversión tenemos que: para $a<b$:
+\[\mu((a,b)) + \frac{\mu(\{a\})+\mu(\{b\})}{2} = \lim_{T\to\infty} \frac{1}{2\pi}\int_{-T}^{T}\frac{e^{-ita}-e^{-itb}}{it}\varphi(t)dt\]
+Podemos reemplazar la expresión adentro de la integral de la siguiente forma:
+\[\frac{e^{-ita}-e^{-itb}}{it} = \int_{a}^{b}e^{-itx}dx\]
+Entonces, acotando:
+\[\mu((a,b)) + \frac{\mu(\{a\})+\mu(\{b\})}{2} \leq \lim_{T\to\infty} \left|\frac{1}{2\pi}\int_{-T}^{T}\int_{a}^{b}e^{-itx}dx\,\varphi(t)dt\right|\]
+\[\leq \lim_{T\to\infty}\frac{1}{2\pi}\int_{-T}^{T}\int_{a}^{b}|e^{-itx}|dx\,\,|\varphi(t)|dt \,=\,(b-a)\cdot \frac{1}{2\pi}\int_{\R}|\varphi(t)|dt\]
+Donde la última igualdad se tiene, pues $|e^{-itx}|=1$ para todo valor de $x$ o de $t$. Ahora, como la integral en todo el espacio de $|\varphi|$ es finita, y dada la continuidad de la medida, cuando hacemos tender $b\rightarrow a$:
+\[\mu(\{a\}) \leq \lim_{b\to a} (b-a)\cdot \frac{1}{2\pi}\int_{\R}|\varphi(t)|dt = 0\]
+Así prbamos que la medida $\mu$ es \textit{no atómica}, y además:
+\[\mu((a,b)) = \frac{1}{2\pi}\int_{\R}\frac{e^{-ita}-e^{-itb}}{it}\,\varphi(t)dt\]
+\[= \int_{a}^{b}\left(\frac{1}{2\pi}\int_{\R}e^{-itx}\varphi(t)\,dt\right)\,dx\]
+En palabras simples: integrando por la medida de Lebesgue, esa función, sobre ese conjunto, recupero la medida del conjunto. Lo que es la definición de densidad.
+\rule{0.7em}{0.7em}\\ \newline
+(\textbf{Ejercicio:} Sea $\{\mu_n\}_n$ una sucesión en $\mathcal{P}(E)$ relativamente compacta, tal que toda subsucesión convergente converge a $\mu \in \mathcal{P}(E)$. Entonces $\mu_n \Rightarrow\mu$.)
+
+Hemos visto que una condición suficiente para la convergencia puntual de medidas de probabilidad en otro elemento de $\mathcal{P}(E)$ es que la sucesión tomada sea \textit{tensa}. Del mismo modo, la convergencia puntual de funciones características de alguna sucesión de medidas $\mu_n$, no necesariamente sería función característica, ni nos entrega información sobre la convergencia de $\mu_n$. El siguiente teorema nos da condiciones bajo las cuales, los hechos anteriores se pueden asegurar.\\ \newline
+\begin{teorema}[Continuidad de Lévy] Sea $(\mu_n)_{n\in\N}$ una sucesión en $\mathcal{P}(\R)$:
+\begin{itemize}
+    \item[i)] Si $\exists\,\mu\in\mathcal{P}(\R)$ tal que $\mu_n\,\Rightarrow\,\mu$, entonces:
+    \[\hat{\mu_n}(t)\xrightarrow{\,\,\,n\,\,\,}\,\hat{\mu}(t) \hspace{1cm} \forall \, t \,\in\,\R\]
+    \item[ii)] Si $\hat{\mu_n}(t)\rightarrow\,\vatphi(t)$ $\forall\,t\in\R$, para alguna función $\varphi$ contínua en $0$, entonces $\exists\,\mu\,\in\,\mathcal{P}(\R)$ tal que $\varphi = \hat{\mu}$ y $\mu_n \Rightarrow\mu$.
+\end{itemize}
+\end{teorema}
+\\ \newline
+
+\textbf{Demostración:} \begin{itemize}
+    \item[i)] Para la demostración de la primera parte, basta notar que la función $f(x) = e^{itx}\,\in\,C_b(\R)$, por lo tanto, por definición de convergencia débil:
+    \[\hat{\mu_n}(t) = \E_{\mu_n}(e^{itX}) = \langle \mu_n , f\rangle\,\xrightarrow{\,\,\,n\,\,\,}\langle \mu, f \rangle = \E_{\mu}(e^{itX}) = \hat{\mu}(t)\]
+    
+    \item[ii)] Si la sucesión $(\mu_n)_n$ fuese relativamente compacta, entonces:
+    \begin{itemize}
+        \item[\cdot] $\exists\,\mu\in\mathcal{P}(\R)$ y una subsucesión $\{n_i\}_{i \in \N}$ tal que $\mu_{n_i}\,\Rightarrow\,\mu$.
+        \item[\cdot] Como $\hat{\mu_n}\rightarrow\varphi$, en particular la convergencia se tiene para cualquer subsucesión de $\hat{\mu_n}$, por lo tanto; de haber sub sucesión $(\mu_{n_i})_{i}$ débil-convergente a $\mu$, entonces $\hat{\mu} = \varphi$, y del hecho de que la función caracteristica es propia de la medida de probabilidad, se concluye que todas las subsucesiones débilmente convergentes de $\mu_n$ convergen al mismo elemento $\mu\in\mathcal{P}(\R)$.\\ \newline
+        Así aseguramos la existencia de $\mu \in \mathcal{P}(\R)$ tal que $\hat{\mu} = \varphi$.
+    \end{itemize}
+    Por lo tanto basta probar que la secuencia $(\mu_n)_{n\in\N}$ es relativamente compacta. O, equivalentemente, gracias al Teorema de Prohorov, mostrar que es tensa. Para ello, veamos que: $\forall\,T>0$,
+    \[\frac{1}{2T}\int_{-T}^{T}\hat{\mu}_n(t)dt = \frac{1}{2T}\int_{-T}^{T}\int_{\R}e^{itx}\,\mu_n(dx)\,dt = \int_{\R}\frac{1}{2T}\int_{-T}^{T} e^{itx}\,dt\,\mu_n(dx) \]
+    Luego, ocupando la caracterización de la exponencial compleja:
+    \[\int_{-T}^{T}e^{itx}dt = \int_{-T}^{T}cos(tx)dt\,+\,i\,\int_{-T}^T sin(tx)dt = 2\int_{0}^{T}cos(tx)dt = \frac{2}{x}sin(Tx)\]
+    Entonces, reemplazando en la ecuación anterior:
+    \[\frac{1}{2T}\int_{-T}^{T}\hat{\mu}_n(t)dt = \int_{\R}\frac{sin(Tx)}{Tx}\mu_n(dx)\]
+    Para cualquier valor $i\,\in\R$ podemos separar la integral en dos intervalos disjuntos:
+    \[\frac{1}{2T}\int_{-T}^{T}\hat{\mu}_n(t)dt = \int_{\R}\frac{sin(Tx)}{Tx}\mu_n(dx) \leq \int_{|x|<l}\left|\frac{sin(Tx)}{Tx}\right| \mu_n(dx) + \int_{|x|\geq l}\left|\frac{sin(Tx)}{Tx}\right|\mu_n(dx)\]
+    Luego, usando las siguientes cotas: para $|x|<l$:
+    \[\\frac{sin(Tx)}{TX} \leq 1\]
+    mientras que para  $|x|\geq l$:
+    \[\frac{sin(Tx)}{Tx} \leq \frac{1}{Tl}\]
+    Por lo tanto:
+    \[\frac{1}{2T}\int_{-T}^{T}\hat{\mu}_n(t)dt \leq \int_{|x|<l}1\cdot \mu(dx) + \int_{|x|\geq l}\frac{1}{Tl}\mu(dx) = \mu_n(|x|<l) +\frac{1}{Tl}\mu(|x|\geq l)\]
+    \[\leq 1 - \mu_n(|x|\geq l) +\frac{1}{Tl}\,\mu_n(|x|\geq l)\]
+    De esta forma, y tomando $l = 2/T$, tenemos que:
+    \[\frac{1}{2}\mu_n(|x|\geq 2/T) \leq 1 - \frac{1}{2T}\int_{-T}^{T}\hat{\mu}_n(t)dt = \frac{1}{2T}\int_{-T}^{T}\left(1-\hat{\mu}_n(t)\right)dt\]
+    Como $\hat{\mu}_n(t) \rightarrow\varphi(t)$ para todo $t$. Ocupando el \textbf{T.C.D.}:
+    \[\limsup_{n}\frac{1}{2}\mu_n(|x|\geq \frac{2}{T}) \leq \frac{1}{2T}\int_{-T}^{T}(1-\varphi(t)) dt\]
+    Tomando límite superior, cuando $T\rightarrow 0$: \footnote{El lado derecho de la siguiente desigualdad se puede ver como una uniforme en $(-1/\xi,1/\xi)$ cuando $T=1/\xi$, que ya vimos anteriormente que converge débilmente  a $\delta_0$.}
+    \[\limsup_{T\to 0}\,\limsup_{n}\frac{1}{2}\mu_n(|x|\geq\frac{2}{T})\,\leq (1-\varphi(0))\]
+    De donde tenemos que, por la convergencia puntual de los $\hat{\mu}_n$ a $\varphi$, como $\hat{\mu}_n(0)=1$ para todo $n\in\N$, entonces necesariamente $\varphi(0)=1$. Entonces:
+    \[\limsup_{T\to \infty}\limsup_{n}\frac{1}{2}\mu_n(|x|\geq 0\]
+    En otras palabras; dado $\epsilon >0$, $\exists\,0<T<\delta$, y $\exists\,n_o \in \N$ tal que:
+    \[\frac{1}{2}\mu_n(|x|\geq \frac{2}{T})\,\leq\,\epsilon\hspace{1cm}\forall\,n\geq n_o\]
+    Luego concluímos que $(\mu_n)_{n\in\N}$ es tensa. \rule{0.7em}{0.7em}\\ \newline
+\end{itemize}
+\end{document}
+

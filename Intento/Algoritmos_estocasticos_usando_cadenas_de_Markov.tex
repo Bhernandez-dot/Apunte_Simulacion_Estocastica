@@ -1,0 +1,207 @@
+\section{Algoritmos estocásticos usando cadenas de Markov}
+El objetivo de este capítulo es presentar algunos alrotimos basados en la simulación de cadenas de Markov. Supondremos en todo momento que todas las cadenas de Markov toman valores en un conjunto $E$, finito.
+
+\subsection{Markov chain Monte Carlo (M.C.M.C.)}
+Se desea simular una variable aleatoria con ley $\pi \in \mathcal{P}(E)$, en muchas situaciones esto es muy costoso computacionalmente. Por ejemplo, si $E$ es finito, pero muy grande, y $\pi$ se conoce salvo constante multiplicativa, nisiquiera podría ser posible calcular la constante $\sum_{x\in E}\pi_x$ que normaliza $\pi$.\\ \newline
+En tal caso se porpone: simular una cadena de Markov con alguna matriz de transición $P$, que posee a $\pi$ como probabilidad invariante.\\ \newline
+Si se desea aproximar $\sum_{x\in E} f(x)\pi_x$, y $(X_n)_n$ es una $P$-C.M., gracias al teorema ergódico, tenemos
+\[\frac{1}{N} \sum_{n=1}^N f(X_n) \approx \sum_{x\in E}f(x)\pi_x,\hspace{0.3cm}(M.C.M.C.)\]
+Para encontrar $P$ que tenga a $\pi$ como probabilidad invariante, es suficiente imponer las ecuaciones de balanceo detallado:
+\begin{equation}
+    \pi_x P_{xy} = \pi_y P_{yx},\hspace{0.2cm}\forall\,x,y\in E
+    \label{clase15_1}
+\end{equation}
+Con esto en mente, se propone el siguiente método: Dada $R$, una matriz de transición markoviana arbitraria sobre $E$. Entonces las fórmulas
+\begin{equation}
+    \begin{cases}
+        P_{xy} = R_{xy}\wedge \left(\frac{\pi_y}{\pi_x}R_{yx}\right), & x \neq y,\\
+        P_{xx} = 1-\sum_{x\neq y}P_{xy}
+    \end{cases}
+    \label{clase15_2}
+\end{equation}
+(donde $a\wedge b = inf(a,b)$), definen una matriz Markoviana $P$, tal que cumpla \ref{clase15_1}, para cada $x,y\in E$. La irreducibilidad de $R$ no es suficiente para asegurar la de $P$, para eso necesitamos, para cada $x\neq y$ que exista $n\geq 1$ y $\{x_0,\cdots,x_n\} \subset E$ con $x_0 = x$ y $x_n=y$ tal que
+\[R_{x_{k-1}x_k}\wedge R_{x_kx_{k-1}}\,>0,\hspace{0.3cm}\forall\,1\leq k\leq n.\]
+¿Cómo elegir $R$ en la práctica? Se escoge un grafo no dirigido $G$ sobre $E$, tal que para todos $x,y\in E$, existen $n\in \N$, $x_1,\cdots,x_{n+1}$, tal que $x_1=x$, $x_{n+1}=y$ y para todo $1\leq k\leq n$, $(x_k,x_{k+1})\in G$ (camino de $x$ a $y$), y elegimos $R$ de la siguiente forma:
+\[R_{xy} >0\,\Longleftrightarrow\,(x,y)\in G.\]
+Entonces la matriz $P$ definida como \ref{clase15_2} es irreducible.\\ \newline
+
+Existen dos elecciones clásicas de $R$ para un grafo $G$ dado:
+\begin{itemize}
+    \item \textbf{Gibbs sampler: }
+    \[R_{xy} = \begin{cases}
+                \left(\sum_{\{z;\,(x,z)\in G\}}\pi_z\right)^{-1}\pi_y, & \text{si }(x,y)\in G,\\
+                0, & \text{si }(x,y) \notin G.
+                \end{cases}\]
+    \item \textbf{Algoritmo Metrópolis: }
+    \[R_{xy} = \begin{cases}
+                (n_x)^{-1}, & \text{si }(x,y)\in G\\
+                0, & \text{si }(x,y)\notin G,
+                \end{cases}\]
+    donde $n_x = |\{z;\,(x,z)\in G\}|$.
+\end{itemize}
+\textbf{Observación: }Para que el método sea práctico, debe ser computacionalmente eficiente sumlar las transiciones de $R$.\\ \newline
+
+Todo lo anterior dda lugar al siguiente algoritmo para simular  la $P$-CMH.:
+\begin{enumerate}
+    \item Elegir grafo $G$ y la matriz $R$ cumpliendo lo recién descrito.
+    \item Escoger punto de partida $x_0$ a gusto.
+    \item Iterar. Dado$X_n=x$, escoger $y=Y_n$ de acuerdo a la ley de probabilidad $R_x$.
+    \item Elegir $X_{n+1}$ de la siguiente forma
+    \[X_{n+1}= \begin{cases}
+                Y_n, & \text{con probabilidad } \frac{\pi_yR_{yx}}{\pi_xR_{xy}}\wedge 1,\\
+                \\
+                X_n, & \text{con probabilidad }1- \left(\frac{\pi_yR_{yx}}{\pi_xR_{xy}}\wedge 1\right).
+                \end{cases}\]
+\end{enumerate}
+Una forma de hacer lo anterior es considerar una variable aleatoria $U_n$ uniforme en $[0,1]$ e independiente de las demás variables, y definir
+\[X_{n+1} = \mathbbm{1}_{\{U_n\leq \pi_yR_{yx}/\pi_xR-{xy}\}}Y_n + \mathbbm{1}_{\{U_n > \pi_yR_{yx}/\pi_xR_{xy}\}}X_n.\]
+\textbf{Observación: }La dependencia de $\pi$ es mediante el cociente $\pi_y/\pi_x$, luego basta conocer $\pi$ salvo constante multiplicativa.
+\begin{ejemplo}[Modelo Ising]
+Es uno de los más populares modelos de la física estadística. Dado $N\in \N$ ($N$ lo supondremos grande), sea 
+\[\Lambda = \Lambda_N = \{-N,\cdots,N\}^2 \subset \Z^2,\]
+cuya frontera es es $\partial \Lambda =\Lambda_N \textbackslash \Lambda_{N-1}$, y definimos el \textit{espacio de configuraciones} como
+\[E = \{-1,1\}^{\Lambda}.\]
+De modo que $\forall\,m\in \Lambda$ y $\forall\,x\in E$, $x(m)\in \{-1,1\}$ denota el \textit{spin} del sitio $m\in \Lambda$.\\
+Para $x\in E$, definimos 
+\[H(x) = \frac{1}{2}\sum_{\overset{m,m'\in\Lambda}{|m-m'|=1} }|x(m)-x(m')|^2.\]
+Sea
+\[E^{+} = \{x \in E;\,x(m)=1,\,\forall m \in \partial \Lambda\}.\]
+Supongamos que queremos simular la siguiente distribución:
+\[\pi_x = \frac{e^{-\beta H(x)}}{Z(\beta)}\hspace{0.3cm}\forall x\in E,\]
+donde $\beta >0$ es un parámetro ($1/\beta$ es la temperatura), y 
+\[Z(\beta) = \sum_{x\in E}e^{-\beta H(x)}.\]
+Note que, incluso para un valor de $N$ no tan grande, el cálsulo de $Z(\beta)$ es imposible. Por ejemplo, para $N=10$:
+\[|E| = |\{-1,1\}^{\Lambda}| = 2^{|\lambda|}\]
+\[= 2^{(2(N-1)+1)^2} \approx 2^{4N^2} = 2^{ 400}\]
+\[=(2^{10})^{40} \approx (10^3)^{40} = 10^{120}\]
+Usaremos MCMC. sobre el siguiente grafo $G$: $xy \in G$ ssi $x$ e $y$ difieren en exáctemente un sitio, esto es, existe $m_0 \in \Lambda \textbackslash \Partial \Lambda$ tal que $x(m_0) \neq y(m_0)$ y $x(m)=y(m)$ $\forall\,m\neq m_0$.\\
+Usando el algoritmo metrópolis:
+\[R_{xy} = \begin{cases}
+|\Lambda \textbackslash \partial \Lambda |^{-1} = \frac{1}{(2N-1)^2}, & xy\in G\\
+0, & xy \notin G
+\end{cases}\]
+En el paso $4)$ del algoritmo, la expresión de $\frac{\pi_y}{\pi_x}\frac{R_{yx}}{R_{xy}}$ se simplifica bastante:
+\[\forall\,xy\in G,\,\,\frac{\pi_y}{\pi_x}\frac{R_{yx}}{R_{xy}} = \frac{e^{-\beta H(y)}/Z(\beta)}{e^{-\beta H(x)}/Z(\beta)} \frac{1/(2N-1)^{2}}{1/(2N-1)^{2}} = e^{-\beta(H(y)-H(x))}\]
+\end{ejemplo}
+
+\subsection{Simulación de la distribución invariante}
+Uno de los problemas en algoritmos MCMC. es la elección del número de veces en que debemos iterar la cadena de Markov. La diferencia con el método estándar de Monte Carlo es que la cadena parte de un punto arbitrario, esto es, la cadena no parte según su distribución de probabilidad invariante. En este sentido, uno podría pensar que existe una "fase inicial" del algoritmo, durante la cual la ley de la cadena toma valores cercanos a la distribución invariante. Entonces, durante la segunda fase del algoritmo, podríamos controlar la taza de convergencia en el teorema ergódico, lo cual se puede hacer con ayuda del teorema del límite central. \\ Asumiremos que $|E| < \infty$ y, para aligerar la notación $E=\{1,\cdots,N\}$.
+
+\subsubsection{Simulación perfecta.}
+La idea de MCMC. es simular  un $P$-CMH. $(X_n)_{n\in\N}$, donde  $P$ tiene a $\pi$ como probabilidad invariante, de modo que
+\[\frac{1}{n}\sum_{k=1}^Nf(X_k) \approx \sum_{x\in E}f(x)\pi_x\]
+El problema subyacente es que, a veces, se necesita tomar $n$ muy grande  para que lo anterior funcione, especialmente si $X_0$ tiene ley muy alejada de $\pi$.\\ \newline
+Veremos, a continuación, una alternativa a MCMC, llamada \textit{simulación perfecta}. Obtendremos una simulación exacta de $\pi$ (e lugar de una aproximación como en MCMC) calzando una cantidad aleatoria de pasos.\\ \newline
+
+Supondremos que $P$ cumple  
+\begin{equation}
+    \beta = \beta(P) = \sum_{y\in E}\inf_{y\in E}P_{xy} > 0
+    \label{clase16_1}
+\end{equation}
+Gracias a las suposiciones que hicimos con respecto a $E$ (finito, $E=[N]$), \ref{clase16_1} es la condición de Doeblin $(D)$ con $n_0=1$. Notar que $\beta(P) \leq 1$.\\
+Sea $\nu \in \mathcal{P}(E)$ dada por:
+\[\nu_y := \frac{\inf_{x\in E}P_{xy}}{\beta},\hspace{0.2cm}y\in E,\]
+\textbf{Observación: }Uno podría elegir otro par $(\beta,\nu)$, con $\beta >0$, y $\nu$ probabilidad sobre $E$ tal que $P_{xy}\geq \beta \nu_y$, pero la elección anterior es óptimo, en el sentido que maximiza $\beta$.\\ \newline
+\textbf{Observación: }La afirmación $\beta(P)>0$ implica la existencia de una única clase recurrente, por lao tanto $P$ posee una única probabilidad invariante, a la que llamaremos $\pi$.\\ \newline
+
+Sean los siguientes objetos independientes cada uno del otro, $\forall\,n\in\N$:
+\begin{itemize}
+    \item $\xi_n \sim Bernoulli(\beta)$
+    \item $Z_n \sim \nu$
+    \item $U_n \sim unif(0,1)$
+\end{itemize}
+Sea $Q$ la matriz Markoviana definida por
+\[Q_{xy} = \frac{1}{1-\beta}(P_{xy}-\beta \nu_y),\]
+y $f:E\times [0,1]\rightarrow E$, función de transición de $Q$, es decir: $\forall\,x\in E$, $\forall\,U\sim unif(0,1)$, se tiene que $f(x,U)\sim Q_{x\cdot}$.\\ \newline
+Dado $X_0$, independiente de todo lo anterior, definamos $(X_n)_{n\in \N}$ mediante la recursión
+\begin{equation}
+    X_n = \xi_n Z_n + (1-\xi_n)f(X_{n-1},U_n)
+    \label{clase16_2}
+\end{equation}
+\begin{prop}
+\label{porp}
+La recurrencia definida en \ref{clase16_2} es una $P$-C.M.
+\end{prop}
+
+\textbf{Demostración: }Condicionando a los valores de $\xi_n$ y ocupando probabilidades totales:
+\[\prob(X_1 = y\,|\,X_0=x) = \prob_x(X_1=y)\]
+\[= \prob_x(X_1=y\,|\,\xi = 1)\prob(\xi =1) + \prob_x(X_1=y\,|\,\xi=0)\prob(\xi=0)\]
+\[ = \prob(Z = y)\prob(\xi = 1) + \prob_x(f(X_0,U)=y)\prob(\xi=0)\]
+\[ = \nu_y\beta + \prob(f(x,U)=y)(1-\beta)\]
+\[ = \nu_y \beta + Q_{xy}(1-\beta)\]
+\[=\nu_y\beta + \frac{(P_{xy}-\beta \nu_y)}{(1-\beta)}(1-\beta)\]
+\[= P_{xy}\]
+Así probamos que la matriz de transición es $P$, falta por demostrar que $(X_n)_n$ es una cadena de Markov, es decir $\prob(X_n=y\,|\,X_{n-1}=x)=\prob(X_1=y\,|\,X_0=x)=P_{xy}\,\forall\,n\in\N$, resultado que es directo del Lema \ref{Lema 8}.\\
+\rule{0.7em}{0.7em}\\ \newline
+Tenemos lo siguiente:
+\begin{prop}
+Sea
+\[T = \inf\{n\geq 1\,|\,\xi_n=1\}\]
+Entonces $T\sim geom(\beta)$, $X_T \sim \nu$, además $X_T$ es independiete con $T$.
+\end{prop}
+
+\textbf{Demostración: }
+\[\prob(X_T = x\,|\,T=n) = \prob(\xi_1 = 0,\cdots,\xi_{n-1}=0,\xi_n=1,Z_n=x)\]
+\[ = (1-\beta)^{n-1}\beta \nu_x\]\\
+\rule{0.7em}{0.7em}\\ \newline
+La idea, ahora, es construir una $P$-C.M. estacionaria. Para construir $(X_n)_{n\in \Z}$, consideremos $(\xi_n)_{n\in \Z}$, $(Z_n)_{n\in \Z}$, $(U_n)_{n\in \Z}$, al igual que antes, y sea
+\[\tau(n) = \max\{k\leq n:\,\xi_k=1\}\]
+Para $n$ tal que  $\xi_n = 1$, se tiene que  $n=\tau(n)$ y definimos $X_n:=Z_n$.\\ Mientras que para $n$ tal que $\xi_n =0$, se tiene $\tau(n)<n$, y definimos iterativamente:
+\[X_{\tau(n)+1}:= f(X_{\tau(n)},U_{\tau(n)+1})\]
+\[X_{\tau(n)+2}:= f(X_{\tau(n)+1},U_{\tau(n)+2})\]
+\[\cdot\]
+\[\cdot\]
+\[\cdot\]
+\[X_n:= f(X_{n-1},U_n)\]
+Básicamente, es la misma construcción  anterior, sólo que partiendo  con ley $\nu$ en el instante aleatorio $\tau(0)\leq 0$.\\ \newline
+Notar que $-\tau(0)+1 \sim geom(\beta)$.
+\begin{prop}
+$(X_n)_{n\in \Z}$ es estacionario, es decir, $\forall\, l,k\in \Z$, $(X_{l+1},\cdots,X_{l+k}) \overset{\,d\,}{=}(X_1,\cdots,X_k)$.\\ En particular, $X_0\sim \pi$.
+\end{prop}
+
+\textbf{Demostración: }Sea $\mu = \mathcal{L}(X_0)$. Basta probar que $\mu P = \mu$.
+\[\mu_x = \prob(X_0=x) = \sum_{k=0}^{\infty}\prob(X_0=x\,|\,\tau(0)=-k)\prob(\tau(0)=-k)\]
+\[= \sum_{k=0}^{\infty}(\nu Q^k)_x (1-\beta)^{k}\beta\]
+Como $P_{xy} = (1-\beta)Q_{xy} + \beta \nu_y$, tenemos
+\[(\mu P)_y = \sum_{x\in E}\mu_x P_{xy} = \sum_{x\in E}\sum_{k=0}^{\infty}(\nu Q^k)_x(1-\beta)^k\beta P_{xy}\]
+\[= \beta \sum_{k=0}^{\infty}(1-\beta)^{k+1}\sum_{x\in E}(\nu Q^k)_xQ_{xy} + \beta^2 \nu_y \sum_{k=0}^{\infty}(1-\beta)^k\sum_{x\in E}(\nu Q^k)_x\]
+\[= \beta\sum_{k=0}^{\infty}(1-\beta)^{k+1}(\nu Q^{k+1})_y + \beta^2\nu_y\sum_{k=0}^{\infty}(1-\beta)^k\]
+\[= \beta\sum_{k=1}^{\infty}(1-\beta)^{k}(\nu Q^{k})_y + \beta\]
+\[= \beta\sum_{k=1}^{\infty}(1-\beta)^{k}(\nu Q^{k})_y + \beta(\nu Q^0)_y(1-\beta)^0\]
+\[= \sum_{k=0}^{\infty}\beta(1-\beta)^{k}(\nu Q^{k})_y = \mu_y\]
+\rule{0.7em}{0.7em}\\ \newline
+\subsection{Simulated Annealing}
+La busqueda de máximos globales de alguna función es uno de los problemas más importatntes de la matemática aplicada. En el caso de funciones diferenciables definidas sobre $\R^d$, uno puede empezar por un punto arbitrario y moverse en la dirección determinada por el gradientehasta que la función detenga su crecimiento. Desafortunadamente, tales métodos conducen a mínimos locales, los cuales podría no ser mínimos globales. En el caso en que la función esté definida sobre un conjunto finito $E$, uno podría calcular cada valor de la función $f(x)$ en cada punto $x\in E$, pero la eficiencia de este procedimiento depende bastante del tamaño que tenga el conjunto $E$, en casos que le el número de elementos sea demasiado grande esto se hace imposible de implementar.\\
+Usaremos aleatoriedad para escapar de óptimos locales, buscando en zonas distintas del espacio $E$, ojalá convergiendo al óptimo global. A medida que el algoritmo progresa, se irán reduciendo las perturbaciones aleatorias.\\ \newline
+Específicamente: sea $E$ finito, sea $U:E\rightarrow \R_{-}$, y supongamos
+\[\max_{x\in E}U_x = 0.\]
+Buscamos $x\in E$ tal que $U_x = 0$. Para $\beta >0$ ($1/\beta$ es la \textit{temperatura}), sea $\pi^{\beta}\in \mathcal{P}(E)$ dada por
+\[\pi_x^{\beta} = \frac{e^{\beta U_x}}{Z_\beta},\hspace{0.2cm}\text{con\footnote{Típicamente, es imposible calcular $Z_\beta$.} }Z_{\beta} := \sum_{x\in E}e^{\beta U_x}\]
+Notamos que $\pi_x^\beta$ favorece a los $x\in E$ cuyos valores de $U_x$ sean más altos. Más aún:
+\[\pi^\beta \xrightarrow{\beta \rightarrow \infty} \lambda \]
+donde $\lambda$ es una medida uniforme sobre el conjunto de los máximos de $U$.\\ \newline
+
+Para cada $\beta >0$, consideremos una matriz markoviana irreducible y aperiódica, tal que tiene a $\pi^\beta$ como distribución invariante. \\ Sea $G$ un grafo no dirigido sobre $E$, conexo, y sea
+\[n_x = |\{y \in E\,:\,xy \in G\}|\]
+\[= \#\left(\{\text{vecinos de }x\}\right),\]
+y definimos; para $x\neq y$
+\[P_{xy}^\beta = \begin{cases}
+1/n_x\left(e^{\beta(U_y-U_x)}\wedge 1\right), & xy\in G\\
+0, & \sim
+\end{cases}\]
+y para $x=y$
+\[P_{xx}^\beta = 1-\sum_{y \neq x}P_{xy}^\beta. \]
+Vemos que $P^\beta$ hace improbables a las transiciones de estados que hacen disminuir el valor de $U$.\\ Es fácil ver que $\pi^\beta$ es invariante para $P^\beta$. Luego, si $(X_n^\beta)_{n\in \N}$ es una $P^\beta$-CMH, su ley converge a $\pi^\beta$ cuando $n\rightarrow \infty$. \\ \newline
+\textbf{SIMULATED ANNEALING: }Tomar $\beta = \beta_n$, con $\beta_n \rightarrow \infty$, lentamente.\\ \newline
+Usualmente
+\[\beta_n = \frac{1}{c}ln(n+e),\]
+con $c>0$, una constante a calibrar. Esto genera
+\[(X_n)_{n\geq0} = (X_n^{\beta_n})_{n\geq 0},\]
+Lo cual es una cadena de Markov \textit{no-homogénea}.\\La idea es tomar $c$ suficientemente grande, de manera que $X_n$ converga a un máximo de $U$, pero no tanto para que la convergencia ocurra en un tiempo razonable.
+\begin{ejemplo}
+Si 
+\[c > M:=\max_{x \in E}\left(-U_x\right),\]
+la convergencia está garantizada.
+\end{ejemplo}
+
+\textbf{Observaciones:} Típicamente, el algoritmo "recuerda" el $\hat{x}\in E$ visitado por $(X_n)_{n\geq 0}$ en que $U_{\hat{x}}$ es el máximo entre los visitados. Cuando se decide detener la cadena, digamos en el $n_{*}$, se retorna $\hat{x}$, no $X_{n_{*}}$.

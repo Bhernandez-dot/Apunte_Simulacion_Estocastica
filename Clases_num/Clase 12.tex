@@ -1,0 +1,146 @@
+\documentclass[a4paper]{article}
+
+%% Language and font encodings
+\usepackage[english]{babel}
+\usepackage[utf8x]{inputenc}
+\usepackage[T1]{fontenc}
+
+
+%% Sets page size and margins
+\usepackage[a4paper,top=3cm,bottom=2cm,left=3cm,right=3cm,marginparwidth=1.75cm]{geometry}
+
+%% Useful packages
+\usepackage{amsmath}
+\usepackage{graphicx}
+\usepackage{tikz,pgfplots}
+\usepackage[colorinlistoftodos]{todonotes}
+\usepackage[colorlinks=true, allcolors=blue]{hyperref}
+\usepackage{amsfonts}
+\usepackage{bbm}
+\usepackage{dsfont}
+\usepackage{cancel}
+\usepackage{tikz,tkz-base,tkz-fct}
+\usepackage{pgfplots}
+\newcommand{\prob}{\mathbb{P}}
+\newtheorem{definicion}{Definición}
+\newtheorem{teorema}{Teorema}
+\newtheorem{ejemplo}{Ejemplo}
+\DeclareMathOperator*{\argmax}{Arg\,max}
+\newtheorem{lem}{Lema}
+\newtheorem{prop}{Proposici\'on}
+\newtheorem{cor}{Corolario}
+\newtheorem{dem}{Demostración}
+\numberwithin{equation}{subsection}
+\numberwithin{definicion}{subsection}
+\newtheorem{obs}{Observación}
+
+
+%% Aquí se pueden definir nuevas abreviaturas para algunos comandos
+
+\def\sen{{\rm sen\mspace{1.5mu}}}
+\def\C{\mathbb C}
+\def\R{\mathbb R}
+\def\N{\mathbb N}
+\def\Q{\mathbb Q}
+\def\Z{\mathbb Z}
+\def\V{\mathbb V}
+\def\E{\mathbb E}
+\def\to{\rightarrow}
+\newcommand{\pb}{\mathbb{P}}
+
+
+
+\newcommand{\ds}{\displaystyle}
+
+
+%Para hacer normas en tex
+
+\providecommand{\norm}[1]{\lVert#1\rVert}
+\providecommand{\normm}[1]{\bigg\lVert#1\bigg\rVert}
+
+
+%integrales bacanes
+\usepackage{ esint }
+
+%Para poner en negrita en modo matemático
+\newcommand{\negri}{\boldsymbol}
+
+
+
+
+\title{Simulación Estocástica}
+\author{Clase 12}
+\date{29 de agosto de 2019}
+
+\begin{document}
+\maketitle
+
+\subsection{El caso aperiódico}
+Ya hemos visto que en el caso irreducible y recurrente positivo;
+\[\frac{1}{n}\sum_{k=1}^n\mathbbm{1}_{\{X_k = y\}}\rightarrow \pi_y\hspace{0.2cm}c.s.,\]
+cuando $n\rightarrow \infty$. Tomando esperanza bajo $\prob_x$, deducimos que
+\begin{equation}
+\frac{1}{n}\sum_{k=1}^n\left(P^k\right)_{xy}\rightarrow \pi_y,\hspace{0.3cm}\forall\,x,y\in E.
+\label{eq_cl12_1}
+\end{equation}
+La pregunta natural que surge es; si mantenemos las mismas hipótesis, ¿será que
+\begin{equation}
+    (P^n)_{xy}\xrightarrow{n \rightarrow \infty}\pi_y
+    \label{eq_cl12_2}
+\end{equation}
+para todo $x,y\in E$?\\ \newline
+En general, este resultado no es cierto.\\ 
+
+Consideremos el paseo aleatorio sobre $E = \Z/N$, donde $N$ es un entero par (identificamos a $N$ con 0),
+\[X_n = X_0 + Y_1 + \cdots + Y_n,\]
+con $Y_n$ variables $i.i.d.$ tomando valores en $\{-1,1\}$, con igual robabilidad \\($\prob(Y_n = 1) = \prob(Y_n=-1) = 1/2$); en otras palabras,
+\[X_n = (X_0 + Y_1 + \cdots + Y_n)\,\text{mod}\,N.\]
+Esta cadena es irreducible, y recurrente positiva dado que $E$ es inito. Pero $(P^{2k+1})_{xx}=0$, para todo $x\in E$. En el caso particular de $N=2$, tenemos que $P^{2k} = I$ y $P^{2k+1} = P$.\\ Es decir, $(P^n)_{xx}$ no converge, aunque \ref{eq_cl12_1} si se cumple. Para obtener \ref{eq_cl12_2} necesitamos descartar este tipo de comportamientos.\\ \newline
+Para que la convergencia deseada en \ref{eq_cl12_2} sea cierta, necesitamos una condición adicional.
+\begin{definicion}
+Un estado $x\in E$ se dice aperiódico si existe $N$ tal que 
+\[(P^n)_{xx}>0,\hspace{0.3cm}\forall\,n\geq N.\]
+\end{definicion}
+\begin{lem}
+Si $P$ es irreducible y existe un estado aperiódico $x$, entonces para todos $y,z \in E$, existe $M$ tal que $(P^n)_{yz} >0$, para todo $n\geq M$. En particular, todos los estados son aperiódicos.
+\end{lem}
+
+\textbf{Demostración: }De la irreducibilidad, existen $r,s\in \N$ tales que $(P^r)_{yx} >0$, $(P^s)_{xz}>0$. Más aún,
+\[(P^{r+n+s})_{yz}\geq (P^r)_{yx}(P^n)_{xx}(P^s)_{xz}>0\]
+si $n\geq N$. Entonces tenemos la propiedad deseada con $M=N+r+s$.\\
+\rule{0.7em}{0.7em}\\ \newline
+\textbf{Observación: }Supongamos el caso irreducible y recurrente positivo. Sea $\pi$ la probabilidad invariante, entonces $\pi_y>0$, para todo $y\in E$. Por lo tanto, el hecho de que exista $N$ tal que, para todo $n\geq N$, $(P^n)_{xy}>0$ es una condición necesaria para establecer la convergencia $(P^n)_{xy}\rightarrow \pi_y$. Ahora veremos que, además, es condición suficiente.\\ \newline
+\begin{teorema}
+Supongamos que $P$ es irreducible, recurrente positiva y aperiódica. Sea $\pi$ la única medida de probabilidad invariante. Si $\{X_n;\,n\in\N\}$ es una $(\mu,P)$-C.M., para todo $y\in E$,
+\[\prob(X_n = y)\rightarrow \pi_y,\hspace{0.3cm}n\rightarrow \infty;\]
+en otras palabras, 
+\[(\mu P^n)_y \, \rightarrow\,\pi_y,\] 
+para cualquier ley inicial $\mu$. En particular, para todos $x,y\in E$,
+\[(P^n)_{xy}\rightarrow \pi_y.\]
+\end{teorema}
+
+\textbf{Demostración: }Debemos usar un par de argumentos. Sea $\{Y_n;\,n\in \N\}$ una $(\pi,P)$-C.M., independiente de  $\{X_n;\,n\in \N\}$, y $x\in E$ arbitrario. Sea
+\[T = \inf\{n\geq 0;\,X_n=Y_n=x\}.\]
+\begin{itemize}
+    \item \textbf{Paso 1:} Mostrar que  $\prob(T<\infty)=1$.\\ \newline
+    $\{W_n = (X_n,Y_n);\,n\in \N\}$ es una cadena da Markov a valores en $(E\times E)$, con ley inicial $\lambda$ (donde $\lambda_{(x,u)} = \mu_x\pi_u$) y matriz de transición $\Tilde{P}_{(x,u)(y,v)} = P_{xy}P_{uv}$. Dado que $P$ es periódica, para todo $x,u,y,v$, para todo $n$ suficientemente grande,
+    \[(\Tilde{P}^n)_{(x,u)(y,v)} = (P^n)_{xy}(P^n)_{uv} > 0.\]
+    Porque $\Tilde{P}$ es irreducible. Más aún, $\Tilde{P}$ posee probabilidad invariante
+    \[\Tilde{\pi}_{(x,u)} = \pi_x\pi_u.\]
+    Por lo tanto, $\Tilde{P}$    es recurrente positiva. $T$ es el momento del primer encuentro de la cadena $\{W_n\}$ con el punto $(x,x)$; y es finito casi seguramente.\\ \newline
+    \item \textbf{Paso 2:} Definimos
+    \[Z_n = \begin{cases}
+            X_n &,\hspace{0.2cm}n\leq T;\\
+            Y_n &,\hspace{0.2}n>T.
+            \end{cases}\]
+    Por la propiedad fuerte de Markov, ambos procesos $\{X_{T+n};\,n\geq 0\}$ y $\{T_{T+n};\,n\geq 0\}$ son $(\delta_x,P)$-C.M., independientes de $(X_0,\cdots,X_T)$. En consecuencia, $\{Z_n;\,n\in \N\}$ es, como $\{X_n\}$, una $(\mu,P)$-C.M.
+    \item \textbf{Paso 3:} Concluyendo. con estas tres identidades
+    \[\prob(Z_n=y)=\prob(X_n=y),\]
+    \[\prob(Y_n=y)=\pi_y,\]
+    \[\prob(Z_n=y)=\prob(X_n=y,\,n\leq T)+\prob(Y_n=y,\,n>T).\]
+    Por lo tanto, 
+    \[\left|\prob(X_n=y)-\pi_y\right| = \left|\prob(Z_n=y) - \prob(Y_n=y)\right| \leq \prob(n<T) \rightarrow 0,\]
+    cuando $n\rightarrow \infty$.
+\end{itemize}\\
+\rule{0.7em}{0.7em}\\ \newline
+\end{document}

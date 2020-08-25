@@ -1,0 +1,150 @@
+\section{Martingalas}
+Dado un espacio de probabilidades $(\Omega,\mathcal{F},\mathbb{P})$, se define una \textit{filtración} como una colección $\left(\mathcal{F}_t\right)_{t\geq 0}$ de sub $\sigma$-álgebras de $\mathcal{F}$, crecientes respecto a la inclusión. Esto es: 
+\[\mathcal{F}_s \subseteq \mathcal{F}_t \subseteq \mathcal{F},\hspace{0.3cm}\forall\,0\leq s\leq t\]
+
+A la tupla $\left(\Omega,\mathcal{F},(\mathcal{F}_t)_{t\geq0},\mathbb{P}\right)$ la llamamos \textit{espacio de probabilidades filtrado}. Intuitivamente podemos pensar en $\mathcal{F}_t$ como la información acumulada en el proceso estocástico involucrado en $\mathcal{F}$ hasta el momento $t\geq 0$.
+
+Dado un proceso $(X_t)_{t\geq0}$, podemos definir la \textit{filtración natural} del proceso como:
+\[\mathcal{F}_t^X = \sigma\left(\,\{X_s:\,s\in[0,t]\}\,\right).\]
+Donde (recordemos) la notación $\sigma(\mathcal{A})$ corresponde a la $\sigma-$álgebra generada por el conjunto $\mathcal{A}$. Un buen ejercicio sería probar que $\mathcal{F}_t^X$ es efectivamente una filtración del espacio $(\Omega, \mathcal{F},\mathbb{P})$.
+
+\begin{definicion} El proceso estocástico $X_t$ se dice \textit{adaptado} a la filtración $\{\mathcal{F}_t\}$ si, para cada $t\geq 0$, $X_t$ es una variable aleatoria $\mathcal{F}_t$-medible.
+\label{def_adaptado}
+\end{definicion}
+Es fácil notar que todo proceso estocástico $(X_t)_{t\geq0}$ es adaptado a su filtración natural $\mathcal{F}_t^X$. Desde ahora, y salvo que se diga antes, siempre trabajaremos con procesos adaptados.
+
+Dado un espacio filtrado\footnote{Omitiremos (y asumiremos) que hablamos de un espacio de probabilidades y aclararemos cuando este no sea el caso.} $(\Omega, \mathcal{F},(\mathcal{F}_t)_{t\geq0},\mathbb{P})$ y un movimiento browniano, $(B_t)_{t\geq0}$ con respecto a este espacio. Se puede probar que $B_t$ es un proceso adaptado a este espacio, cumpliendo $i$, $iii$ y $iv$ de la definición \ref{def-MB}, y donde es posible reemplazar la condición $ii$ por
+
+\[(B_{t+s} - B_t)_{s\geq0}\,\indep \mathcal{F}_t.\]
+En palabras, \textit{el movimiento dado por $B_{s+t}-B_t$ es independiente a la sub $\sigma-$álgebra $\mathcal{F}_t$}.\\\break
+Los siguientes resultados son recuerdos de algunas propiedades de las \textbf{esperanzas condicionales} que serán de utilidad más adelante.
+\begin{prop}
+Si $X$ es una v.a. en el espacio $(\Omega,\mathcal{F},\prob)$ y  $\mathcal{G}\subseteq \mathcal{F}$ es una sub $\sigma-$álgebra, la \textbf{esperanza condicional} $Y=\mathbb{E}\left(X|\mathcal{G}\right)$ es la única v.a. ($\prob-$c.s.) $\mathcal{G}$-medible que cumple que
+\[\mathbb{E}\left(\mathbbm{1}_AX\right) = \mathbb{E}\left(\mathbbm{1}_AY\right)\]
+\newline
+Se cumple además:
+\begin{itemize}
+    \item Si $X$ es $\mathcal{G}$-medible $\Rightarrow$ $\mathbb{E}\left(X|\mathcal{G}\right) = X$ c.s.
+    \item Si $X \indep \mathcal{G}$ $\Rightarrow$ $\mathbb{E}(X|\mathcal{G}) = \mathbb{E}(X)$ c.s.
+    \item Si $Z$ es $\mathcal{G}$-medible $\Rightarrow$ $\mathbb{E}(ZX|\mathcal{G}) = Z\mathbb{E}(X|\mathcal{G})$ c.s.
+    \item Si $\mathcal{H}\subseteq \mathcal{G}$ es sub $\sigma$-álgebra $\Rightarrow$ $\mathbb{E}\left(\mathbb{E}(X|\mathcal{G})\,|\mathcal{H}\right) = \mathbb{E}(X|\mathcal{H})$ c.s.
+\end{itemize}
+\label{prop-espcondicional}
+\end{prop}
+
+Dado un espacio filtrado $(\Omega,\mathcal{F},(\mathcal{F}_t)_{t\geq0},\prob)$, se define una \textbf{\textit{martingala}} como un proceso adaptado $(X_t)_{t\geq0}$ tal que $X_t \in L^1\,\forall\,t$ y $\forall,0\leq s\leq t$:
+\[\mathbb{E}\left(X_t|\mathcal{F}_s\right) = X_s\hspace{0.3cm}\prob-c.s.\]
+La definición de martingala formaliza el concepto matemático de ``juego justo'' al otorgarle el mismo valor esperado a la variable a cada momento. Si interpretamos a $X_t$ como el dinero ganado en un juego de apuestas sucesivas al momento $t$, entonces la definición anterior nos dice que lo que espero tener al momento $t$, si ya estoy en el momento $s$ ($t\geq s$), es exactamente el dinero que tengo en el momento $s$ sin importar lo ocurrido entremedio o anteriormente.
+\newpage
+\begin{prop}
+Dado un M.B., $(B_t)_{t\geq0}$ en $(\Omega,\mathcal{F},(\mathcal{F}_t)_{t\geq0},\prob)$.
+\begin{itemize}
+    \item[i.] $(B_t)_{t\geq0}$ es una mg.\footnote{A.k.a.: Martingala.}.
+    \item[ii.] $(B_t^2 - t)_{t\geq0}$ es una mg.
+    \item[iii.] $\forall\,\alpha>0$, $exp\left(\alpha B_t - \alpha^2 t/2\right)$ es una mg.
+\end{itemize}
+\label{prop_martingalasMB}
+\end{prop}
+
+\textbf{Demostración:} $i.$ Notemos que para cada $t\geq 0$, la sub $\sigma$-álgebra $\mathcal{F}_t$ contiene la información del proceso hasta el tiempo $t$, esto incluye la trayectoria recorrida por $B_t$,  lo que la hace $\mathcal{F}_t$-medible. Ahora, aplicando la propiedad de incrementos normales (definición \ref{def-MB}, punto $iii.$) tenemos que para $0\leq s \leq t$:
+\[(B_t - B_s) |\mathcal{F}_s\,\sim\,\mathcal{N}(0,t-s),\]
+por lo tanto
+\[\mathbb{E}\left(B_t - B_s|\mathcal{F}_s\right) = 0\]
+\[\Rightarrow\,\,\mathbb{E}\left(B_t|\mathcal{F}_s\right) = \mathbb{E}\left(B_s|\mathcal{F}_s\right).\]
+Luego, como $B_s$ es $\mathcal{F}_s$-medible, ocupando el primer punto de la proposición \ref{prop-espcondicional}, obtenemos que
+\[\mathbb{E}\left(B_s|\mathcal{F}_s\right) = B_s\,,\]
+es decir:
+\[\mathbb{E}\left(B_t|\mathcal{F}_s\right) = B_s.\]
+\newline
+Para demostrar $ii.$ notemos que, para $0\leq s \leq t$:
+\[B_t^2 = (B_t - B_s)^2 + 2B_s(B_t-B_s) + B_s^2,\]
+por lo tanto tenemos la siguiente igualdad
+\[\mathbb{E}\left(B_t^2|\mathcal{F}_s\right) = \mathbb{E}\left((B_t - B_s)^2|\mathcal{F}_s\right) + 2\mathbb{E}\left(B_s(B_t-B_s)|\mathcal{F}_s\right) + \mathbb{E}\left(B_s^2|\mathcal{F}_s\right).\]
+Primero, veamos que tanto $B_s$ como $B_s^2$ son $\mathcal{F}_s$-medibles, ocupando el tercer y primer punto de la proposición \ref{prop-espcondicional}, podemos reescribir la igualdad anterior como
+\[\mathbb{E}\left(B_t^2|\mathcal{F}_s\right) = \mathbb{E}\left((B_t - B_s)^2|\mathcal{F}_s\right) + 2B_s\mathbb{E}\left((B_t-B_s)|\mathcal{F}_s\right) + B_s^2.\]
+Ahora, por la propiedad de incrementos independientes de los M.B., sabemos que $B_t-B_s \indep \mathcal{F}_s$, por lo tanto también $(B_t-B_s)^2 \indep \mathcal{F}_s$. Con esto podemos aplicar el segundo punto de la proposición \ref{prop-espcondicional}:
+\[\mathbb{E}\left(B_t^2|\mathcal{F}_s\right) = \mathbb{E}\left((B_t - B_s)^2|\mathcal{F}_s\right) + 2B_s\mathbb{E}\left((B_t-B_s)|\mathcal{F}_s\right) + B_s^2.\]
+\[ = \mathbb{E}\left((B_t - B_s)^2\right) + 2B_s\mathbb{E}\left(B_t-B_s\right) + B_s^2.\]
+Recordando que $B_t-B_s \sim \mathcal{N}(0,t-s)$, obtenemos que $\mathbb{E}(B_t-B_s)=0$ y $\mathbb{E}((B_t-B_s)^2) = Var(B_t-B_s)=t-s$. Así,
+\[\mathbb{E}\left(B_t^2|\mathcal{F}_s\right) = t-s + B_s^2.\]
+\[\Rightarrow\,\mathbb{E}\left(B_t^2 - t|\mathcal{F}_s\right) = B_s^2 - s\,,\]
+probando el punto $ii$.\newline
+Ocupando argumentos similares que en la parte anterior, tenemos que:
+\[\mathbb{E}\left(e^{\alpha B_t}|\mathcal{F}_s\right) = \mathbb{E}\left(e^{\alpha (B_t-B_s)}e^{\alpha B_s}|\mathcal{F}_s\right),\]
+ocupamos que $e^{\alpha B_s}$ es $\mathcal{F}_s$-medible, $e^{\alpha (B_t-B_s)}\indep \mathcal{F}_s$ y que $(B_t-B_s) \sim \mathcal{N}(0,t-s)$ para afirmar que
+\[\mathbb{E}\left(e^{\alpha B_t}|\mathcal{F}_s\right) = \mathbb{E}\left(e^{\alpha (B_t-B_s)}e^{\alpha B_s}|\mathcal{F}_s\right) = e^{\alpha B_s}\mathbb{E}\left(e^{\alpha (B_t-B_s)}|\mathcal{F}_s\right)\]
+\[e^{\alpha B_s}\mathbb{E}\left(e^{\alpha (B_t-B_s)}\right) = e^{\alpha B_s} e^{\alpha^2(t-s)/2}.\]
+Es decir;
+\[\mathbb{E}\left(exp(\alpha B_t - \alpha^2 t/2)|\mathcal{F}_s\right) = exp(\alpha B_s - \alpha^2 s/2).\]
+\rule{0.7em}{0.7em}\\
+
+\subsection{Tiempos de parada (t.d.p.)}
+La noción detrás de un \textbf{Tiempo de Parada}, es de una variable aleatoria que ``acumule'' información temporal del proceso hasta cierto tiempo dado, sin el uso de la información futura.
+\begin{definicion}
+Una variable $T$ es llamada \textbf{tiempo de parada}, si es una variable aleatoria a valores en $[0,+\infty]$, tal que $\{T \leq t\} \in \mathcal{F}_t$, $\forall\,t\geq 0$.
+\label{def_tdp}
+\end{definicion}
+\textbf{Ejemplos:}
+\begin{itemize}
+    \item Si definimos $T_a$ como la primera vez que el M.B. $(B_t)$ alcanza el punto $a\in \mathbb{R}$, es decir,
+    \begin{equation}
+        T_a := \inf\{t\geq 0\,|\,B_t = a\}
+        \label{time_a}
+    \end{equation}
+    Entonces $T_a$ es t.d.p.
+    \item Definamos $S_0$ como la última vez antes de $t=1$ en que el movimiento browniano, $B_t$, pasa por el $0$. Es decir,
+    \[S_0 =\sup\{t \in [0,1]\,|\,B_t=0\}.\]
+    Notemos que $S_0$ \textbf{no es t.d.p.}, dado que conocer el supremo implica saber que el proceso $B_t$ no vuelve a cero en todo el intervalo $(S_0,1]$ ``usando información futura''.
+\end{itemize}
+Dada una mg. $(X_t)_{t\geq0}$, ¿será posible obtener un beneficio (en esperanza) al detener el proceso en un t.d.p. $T$? Bajo ciertas condiciones de $T$, esto no sería posible.
+\newline
+
+Dado un t.d.p. $T$, se define la $\sigma$-álgebra $\mathcal{F}_T$ como
+\[\mathcal{F}_T := \{A \in \mathcal{F}\,|\,\forall\,t\geq 0,\,A\cap\{T\leq t\} \in \mathcal{F}_t\}\]
+
+\begin{teorema}[Muestreo opcional de Doob]
+Sea $(X_t)_{t\geq0}$ mg, sean $T$, $S$, t.d.p. tal que $S\leq T \leq K$ ( $\prob$-c.s. ), con $K$ una constante positiva. Entonces
+\[\mathbb{E}\left(X_T|\mathcal{F}_S\right) = X_S,\hspace{0.3cm}\prob-c.s.\] 
+En particular tenemos que $\mathbb{E}(X_T) = \mathbb{E}(X_0)$.
+\label{Doob}
+\end{teorema}
+
+La condición $T\leq K$, suele ser muy restrictiva. Típicamente, se aplica el teorema anterior  a $T\wedge n$, para luego hacer $n \rightarrow +\infty$. Esta técnica se denomina \textit{localización}. 
+
+\begin{prop}
+Sea $a \in \mathbb{R}$, sea $T_a$ como en la expresión \ref{time_a}. Entonces $T_a < \infty$ ($\prob - c.s.$) y su ley viene dada por su transformación de Laplace
+\begin{equation}
+    \mathbb{E}\left(e^{-\lambda T_a}\right) = e^{-\sqrt{2\lambda}|a|},\hspace{0.3cm}\forall\,\lambda>0.
+    \label{Ta-finito}
+\end{equation}
+O, equivalentemente, su densidad está dada por
+\[f_{T_a}(x) = \frac{|a|}{\sqrt{2\pi x^3}}e^{-a^2/2x},\hspace{0.3cm}\forall\,x>0\]
+\label{prop-21}
+\end{prop}
+\textbf{Demostración:} Supongamos $a>0$, para $\eta >0$, definamos la mg:
+\[X_t = e^{\eta B_t - \eta^2 t/2},\]
+donde $B_t$ es M.B. estándar.
+
+Para cada $n\in \mathbb{N}$, el t.d.p. $T_a\wedge n$ es acotado. Ocupando el Teorema \ref{Doob} tenemos que
+\[\mathbb{E}\left(X_{T_a\wedge n}\right) = \mathbb{E}\left(X_o\right) = 1.\]
+Además notamos que $X_{T_a\wedge n}$ es acotada (como suceción en $n$). En efecto, como $B_{T_a\wedge n} \leq a$:
+\[X_{T_a\wedge n} = e^{\eta B_{T_a\wedge n} - \eta^2 (T_a\wedge n)/2} \leq e^{\eta a}.\]
+Dado el evento $\{T_a < \infty\}$, entonces $X_{T_a\wedge n} \rightarrow X_{T_a}$ cuando $n\rightarrow \infty$. De lo contrario, dado $\{T_a = \infty\}$, para todo $n\in \mathbb{N}$ tenemos que $X_{T_a\wedge n} = X_n$ y
+\[X_n = e^{\eta B_n - \eta^2 n/2} \rightarrow 0\]
+cuando $n\rightarrow \infty$, puesto que $B_n < a$. Juntando las expresiones anteriores y ocupando el \textbf{T.C.D}, obtenemos que:
+\[1 = \lim_{n\rightarrow \infty} \mathbb{E}\left(X_{T_a\wedge n}\right) = \mathbb{E}\left( \lim_{n\rightarrow \infty} X_{T_a\wedge n}\right)\]
+\[ = \mathbb{E}\left(\lim_{n\rightarrow \infty} \mathbbm{1}_{\{T_a < \infty\}}X_{T_a\wedge n} + \lim_{n\rightarrow \infty}\mathbbm{1}_{\{T_a = \infty\}}X_{T_a\wedge n}\right)\]
+\[ = \mathbb{E}\left(\mathbbm{1}_{\{T_a < \infty\}}X_{T_a} + 0 \right)\]
+\[ = \mathbb{E}\left(\mathbbm{1}_{\{T_a < \infty\}}e^{\eta a - \eta^2 T_a / 2}\right)\]
+Es decir, $\mathbb{E}\left(\mathbbm{1}_{\{T_a < \infty\}}e^{ - \eta^2 T_a / 2}\right) = e^{-\eta a}$. Tomando $\eta \rightarrow 0^{+}$ tenemos $\prob(T_a < \infty) = 1$ y con esto $\mathbb{E}\left(e^{ - \eta^2 T_a / 2}\right) = e^{-\eta a}$. La expresión \ref{Ta-finito} se obtiene tomando $\eta = \sqrt{2\lambda}$.
+
+El caso $a<0$ se deduce sabiendo que $-B_t$ también es m.b.\\\rule{0.7em}{0.7em}\\
+
+\begin{teorema}[Desigualdad de Doob]
+Si $(X_t)_{t\in [0,T]}$ es mg. contínua\footnote{De trayectoria contínua.}, enotonces:
+\[\mathbb{E}\left(\sup_{0\leq t \leq T} X_t\right)^2 \leq 4\,\mathbb{E}(X_t^2)\]
+\label{Doob-desigualdad}
+\end{teorema}
+\textbf{Demostración:} Un caso más general se puede encontrar en el Teorema 3.8 de \cite{Kara}.
+\rule{0.7em}{0.7em}\\
+

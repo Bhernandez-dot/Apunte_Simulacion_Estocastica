@@ -1,0 +1,208 @@
+\documentclass[a4paper]{article}
+
+%% Language and font encodings
+\usepackage[english]{babel}
+\usepackage[utf8x]{inputenc}
+\usepackage[T1]{fontenc}
+
+
+%% Sets page size and margins
+\usepackage[a4paper,top=3cm,bottom=2cm,left=3cm,right=3cm,marginparwidth=1.75cm]{geometry}
+
+%% Useful packages
+\usepackage{amsmath}
+\usepackage{graphicx}
+\usepackage{tikz,pgfplots}
+\usepackage[colorinlistoftodos]{todonotes}
+\usepackage[colorlinks=true, allcolors=blue]{hyperref}
+\usepackage{amsfonts}
+\usepackage{bbm}
+\usepackage{dsfont}
+\usepackage{cancel}
+\usepackage{tikz,tkz-base,tkz-fct}
+\usepackage{pgfplots}
+\newcommand{\prob}{\mathbb{P}}
+\newtheorem{definicion}{Definición}
+\newtheorem{teorema}{Teorema}
+\newtheorem{ejemplo}{Ejemplo}
+\DeclareMathOperator*{\argmax}{Arg\,max}
+\newtheorem{lem}{Lema}
+\newtheorem{prop}{Proposici\'on}
+\newtheorem{cor}{Corolario}
+\newtheorem{dem}{Demostración}
+\numberwithin{equation}{subsection}
+\numberwithin{definicion}{subsection}
+\newtheorem{obs}{Observación}
+
+
+%% Aquí se pueden definir nuevas abreviaturas para algunos comandos
+
+\def\sen{{\rm sen\mspace{1.5mu}}}
+\def\C{\mathbb C}
+\def\R{\mathbb R}
+\def\N{\mathbb N}
+\def\Q{\mathbb Q}
+\def\Z{\mathbb Z}
+\def\V{\mathbb V}
+\def\E{\mathbb E}
+\def\to{\rightarrow}
+\newcommand{\pb}{\mathbb{P}}
+
+
+
+\newcommand{\ds}{\displaystyle}
+
+
+%Para hacer normas en tex
+
+\providecommand{\norm}[1]{\lVert#1\rVert}
+\providecommand{\normm}[1]{\bigg\lVert#1\bigg\rVert}
+
+
+%integrales bacanes
+\usepackage{ esint }
+
+%Para poner en negrita en modo matemático
+\newcommand{\negri}{\boldsymbol}
+
+
+
+
+\title{Simulación Estocástica}
+\author{Clase 10}
+\date{22 de agosto de 2019}
+
+\begin{document}
+\maketitle
+
+Una cadena de Markov es el análogo de una sucesión determinista determinada por una relación de recurrencia del tipo
+\[x_{n+1} = f(n,x_n),\]
+opuesto al sistema 'con memoria', del tipo
+\[x_{n+1} = f(n,x_n,x_{n-1},\cdots,x_0).\]
+Acá la función $f(n,\dot)$ es reemplazada por la matriz de trancisión
+\[P_{xy}= \prob\left(X_{n+1}=y\,|\,X_n =x\right).\]
+Hasta el momento, podemos asumir que la matriz $P=\left(P_{xy}:\,x,y\in E\right)$ es independiente de la variable tiempo $n$, una vez dicho que la cadena es \textit{homogénea}.
+
+\begin{lem}
+Sea $f:E\times [0,1]\rightarrow E$ medible, sea $X_0$ variable aleatoria en $E$, $Y_1,Y_2,\cdots,$ variables aleatorias uniformes en $[0,1]$, todas independientes entre sí (y de $X_0$). Entonces $\left(X_n\right)_{n\in\N}$ definido recursivamente por $X_{n+1} = f(X_n,Y_{n+1})$ es una $C.M.H.$ (cadena de Markov homogénea).
+\end{lem}
+ La matriz $P$ es llamada \textit{Markoviana} (o \textit{estocástica}), en el sentido en que tiene la siguiente propiedad; para cada $x\in E$, el vector fila $\left(P_{xy};\,y\in E\right)$ es una medida de probabilidad en $E$, en otras palabras;
+ \[P_{xy}\geq 0,\hspace{0.2cm}\forall\,y\in E;\hspace{0.5cm}\sum_{y\in E}P_{xy} = 1\]
+ El vector de distribución inicial, definido por $\mu_x = \prob\left(X_0 = x\right)$, se entiende como un vector fila, de modo que $\left(\mu P\right)_y = \sum_{x\in E}\mu_xP_{xy}$.\\ \newline
+ 
+\begin{prop}
+Para una $(\mu,P)$-$C.M.H.$ se cumplen:
+\begin{enumerate}
+    \item[i)] $\prob\left(X_0=x_0,\,\cdots,\,X_n=x_n\right) = \mu_{x_0}P_{x_0x_1}P_{x_1x_2}\cdots P_{x_{n-1}x_n}$.(Esta propiedad es equivalente a la definición de $(\mu,P)-C.M.H.$)
+    \item[ii)] $\prob\left(X_{n+1}=x_{n+1},\,\cdots,\,X_{n+m}=x_{n+m}\,|\,X_0=x_0,\cdots,X_n=x_n\right) = P_{x_{n+1}x_{n+2}}\cdots P_{x_{n+m-1}x_{n+m}}$.
+    \item[iii)] $\prob\left(X_n=y\,|\,X_0=x\right) = \left(P^n\right)_{xy}$ (Donde la notación anterior hace referencia a la potencia matricial).
+    \item[iv)] $\prob\left(X_n = y\right) = \left(\mu P^n \right)_{y}$
+    \item[v)] Para $g:E\rightarrow \R$, 
+    \[\E\left(g(X_n)\,|\,X_0 = y\right) = \left(P^ng\right)_x = \sum_{y\in E} P^n_{xy} g(y)\]
+    \item[vi)] $\E\left(g(X_n)\right) = \mu P^n g = \sum_{x,y\in E}\mu_x P^n_{xy}g_y$
+\end{enumerate}
+(En esta proposición hacemos uso de la notación $g_y = g(y)$).
+\end{prop}
+
+\textbf{Demostración: }\cite[págs. 20,21]{Pard}\\ \newline
+
+\subsection{Propiedad de Markov fuerte}
+Para la mejor comprensión de esta parte, recordemos la propiedad de Markov. Sea $\left\{X_n;n\in \N\right\}$ una cadena de Markov a valores en $E$ definida sobre el espacio de probabilidades $\left(\Omega,\mathcal{F},\prob\right)$. Dada una medida de probabilidad $\mu$ sobre $E$, usaremos la notación $\prob_{\mu}$ para denotar cualquier probabilidad sobre $\left(\Omega,\mathcal{F}\right)$ tal que, bajo $\prob_{\mu}$, la sucesión $\{X_n; n\geq 0\}$ es una cadena de Markov con ley inicial $\mu$; en otras palabras, $\mu$ es la ley de $X_0$, esto es,
+\[\prob_{\mu}\left(X_0=x\right) = \mu_x, \hspace{0.5cm}x\in E.\]
+parael caso $\mu = \delta_x$, escribiremos $\prob_x$ en vez de $\prob_{\delta_x}$.\\ $\prob_x$ puede ser interpretado como la ley condicional de $X$, dado $X_0=x$. Para cualquier $n\geq 0$, definimos $\mathcal{F}_n$ como la sigma-algebra de los eventos que están determinados por las variables $X_0,X_1,\cdots,X_n$, esto es,
+\[\mathcal{F}_n = \left\{\{\omega; \left(X_0(\omega),\cdots,X_n(\omega)\right)\in B_n\};\,B_n \in 2^{E^{n+1}}\right\}\]
+Donde $2^F$ denota la colección de todos los subconjuntos del conjunto $F$.
+
+\begin{teorema}
+Sea $\{X_n; n\geq 0\}$ una $(\mu,P)$ cadena de Markov. Entonces, para cada $n\in \N,$ $x\in E$, condicionalmente a $\{X_n=x\}$, $\{X_{n+p}; p\geq 0\}$ es una $(\delta_x,P)$-cadena de Markov independiente  de $\left(X_0,X_1,\cdots,X_n\right)$. En otras palabras, para todo $A \in \mathcal{F}_n$ y todo $m>0$, $x_1,\cdots,x_m \in E$,
+\[\prob\left(A\cap\{X_{n+1}=x_1,\cdots,X_{n+m} = x_m\}|X_n=x\right)\]
+\[= \prob\left(A|X_n=x\right)\prob_x\left(X_1 = x_1,\cdots,X_m = x_m\right)\]
+\end{teorema}
+\textbf{Demostración: }Es suficiente probar el resultado en el caso donde $A=\{X_0=y_0,X_1=y_1\cdots,X_n=y_n\}$ ($A$ es unión finita o numerable de conjuntos disjuntos de esta forma, y el resultado en el caso general saldrá de la $\sigma$-aditividad de $\prob$). Es suficiente considerar el caso $y_n =x$. Así, el lado izquiero de la igualdad es equivalente a
+\[\frac{\prob\left(X_0=y_0,\cdots,X_n=x,X_{n+1}=x_1,\cdots,X_{n+m}=x_m\right)}{\prob\left(X_n=x\right)},\]
+así, aplicando la propiedad anterior iterativamente, esto es igual a
+\[\frac{\prob(A)}{\prob\left(X_n=x\right)}\times P_{xx_1}\times P_{x_1x_2}\times \cdots \times P_{x_{m-1}x_m},\]
+o, en otras palabras,
+\[\prob\left(A|X_n=x\right)\prob_x\left(X_1=x_1,\cdots,X_m=x_m\right).\]
+\rule{0.7em}{0.7em}\\ \newline
+
+El último resultado nos dice en particular que, el pasado y el futuro de una cadena son condicionalemnte independientes, dada la posición de la cadena en el tiempo presente $n$.\\ Ahora, nos gustaría expandir la propiedad de Markov, reemplazando el tiempo dado $n$ por un tiempo aleatorio (pero no cualquier tiempo aleatorio).
+
+\begin{definicion}
+Una variable aleatoria $T$ que toma valores en el conjunto $\N\cup \{+\infty\}$ es llamada tiempo de parada (t.d.p.) si, para todo $n\in \N$,
+\[\{T=n\} \in \mathcal{F}_n.\]
+\end{definicion}
+En otras palabras, las observaciones $X_1,X_2,\cdots,X_n$, la trayectoria de la cadena en el tiempo $n$, es suficiente para decidir si $T$ es igual a $n$.
+
+\begin{ejemplo}
+    \begin{enumerate}
+        \item Para cada $x\in E$, el tiempo de llegada al estado $x$,
+        \[S_x = \begin{cases}
+        \inf\{n\geq0;\,X_n=x\} & \text{, si existe $n$ que lo cumpla.}\\
+        +\infty & \text{, otro caso.}
+        \end{cases}\]
+        y el tiempo del primer retorno al estado $x$,
+        \[T_x = \begin{cases}
+        \inf\ & \text{, si existe $n$ que lo cumpla.}\\
+        +\infty & \text{, en otro caso.}
+        \end{cases}\]
+        son tiempo de parada\footnote{Con la convención de que el ínfimo de un conjunto vacío es $+\infty$, basta con escribir: $T_x = \inf\{n\geq 1;\,X_n=x\}$.}. En el caso de $T_x$ esto se cumple porque
+        \[\{T_x = n\} = \{X_1\neq x\}\cap \cdots \cap \{X_{n-1}\neq x\}\cap\{X_n = x\}.\]
+        \item $\forall\,A\subseteq E$, $T_A := \inf\{n\geq 0:\,X_n\in A\}$ es el tiempo de llegada al conjunto $A$. $T_A$ es t.d.p.
+        \item $L_A:= \sup\{n\geq 1:\,X_n\in A\}$ es la última vez que  la cadena visita $A$. No es tiempo de parada, puesto que necesitamos conocer la trayectoria luego del tiempo $n$ para decidir si $L_A = n$, o no.
+    \end{enumerate}
+\end{ejemplo}\\ \newline \newline
+Dado un tiempo de parada $T$, anotamos
+\[\mathcal{F}_T := \{B \in \mathcal{F}\,|\,B\cap \{T=n\} \in \mathcal{F}_n,\, \foralln\}\]
+Donde $\left(\Omega,\mathcal{F},\prob\right)$ es el espacio de probabilidades subyaccente.\\ (\textbf{Propuesto: }$\mathcal{F}_T$ es una $\sigma$-álgebra)
+
+\begin{teorema}[Propiedad de Markov-fuerte.]
+Sea \{X_n;\,n\geq 0\} una $(\mu,P)$-C.M., y $T$ un tiempo de parada. Condicionado a $\{T<\infty\}\cap\{X_T = x\}$, $\{X_{T+n};\,n\geq 0\}$ es una $(\delta_x,P)$-C.M. que es independiente de $\mathcal{F}_T$.\\ \newline
+En otras palabras; para todo $A\in \mathcal{F}_T$ y todo $m>0$, $x_1,\cdots,x_m \in E$,
+\[\prob\left(A\cap\{X_{T+1}=x_1,\cdots,X_{T+m}=x_m\}\,|\,X_T=x,\,T<\infty\right)\]
+\[= \prob\left(A\,|\,X_T = x,\,T<\infty\right)\times\prob_x\left(X_1 = x_1,\cdots,X_m = x_m\right).\]
+\end{teorema}\\ \newline
+\textbf{Demostración: }Es suficiente mostrar que, para todo $n\in \N$,
+\[\prob\left(A\cap\{T=n\}\cap\{X_{T+1}=x_1,\cdots,X_{T+m}=x_m\}\,|\,X_T=x\right)\]
+\[= \prob\left(A\cap\{T=n\}\,|\,X_T = x\right)\prob_x\left(X_1 = x_1,\cdots,X_m=x_m\right),\]
+que es resultado directo de la propiedad markoviana.\\ \newline
+\rule{0.7em}{0.7em}\\ \newline
+
+\subsection{Estados Recurrentes y Transientes }
+Definimos $T_x = \inf\{n\geq 1;\,X_n = x\}$ como en  el ejemplo anterior.\\ \newline
+
+\begin{definicion}
+$x\in E$ se dice \textit{recurrente} si $\prob_x\left(T_x <\infty\right)=1$, y \textit{transiente} en el caso contrario (es decir, si $\prob_x\left(T_x<\infty\right)<1$).
+\end{definicion}
+ Definimos además, el número de retornos al estado $x$:
+ \[N_x = \sum_{n\geq 1}\mathbbm{1}_{\{X_n = x\}}.\]
+ 
+ \begin{prop}
+    \begin{enumerate}
+        \item[a)] Si $x$ es recurrente, entonces
+        \[\prob_x\left(N_x = +\infty\right) = 1.\]
+        \item[b)] Si $x$ es transiente, entonces
+        \[\prob_x\left(N_x =k\right) = \left(1 - p_x\right)p_x^k,\hspace{0.3cm}k\geq 0,\]
+        donde $p_x = \prob_x\left(T_x<\infty\right)$ (en particular, $N_x<\infty$, $\prob_x$-c.s.).
+    \end{enumerate}
+ \end{prop}\\ \newline
+\textbf{Demostración: }Sea 
+\[T_x^2 = \inf\{n> T_x;\,X_n=x\}\]
+\[= T_x + \inf\{n\geq 1;\,X_{T+n}=x\}.\]
+No es difícil ver que $T_x^2$ es un tiempo de parada:
+\[\prob_x\left(T_x^2 < \infty\right) = \prob_x\left(T_x^2<\infty\,|\,T_x<\infty\right)\prob_x\left(T_x<\infty\right)\]
+\[= \sum_{n=1}^{\infty}\prob_x\left(T_x^2= T_x + n\,|\,T_x<\infty\right)\prob_x\left(T_x <\infty\right).\]
+Pero, por la propiedad de Markov fuerte, deducimos que
+\[\porb_x\left(T_x^2 = T_x +n\,|\,T_x<\infty\right)\]
+\[=\prob_x\left(X_{T_x +1}\neq x,\cdots,X_{T_x +n-1}\neq x,X_{T_x +n}=x\,|\,T_x<\infty\right)\]
+\[= \prob_x\left(X_1\neq x,\cdots,X_{n-1}\neq x,X_n=x\right)\]
+\[=\prob_x\left(T_x=n\right).\]
+Finalmente,
+\[\prob_x\left(T_x^2<\infty\right)=(\prob_x\left(T_x<\infty\right))^2\]
+o
+\[\prob_x\left(N_x\geq 2\right) = (\prob_x\left(T_x<\infty\right))^2.\]
+Así, iterando el mismo argumento, deducimos que
+\
+Ambas afirmaciones de la proposición se deducen fácilmente de esta identidad.\\
+\rule{0.7em}{0.7em}\\ \newline
+\end{document}

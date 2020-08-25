@@ -1,0 +1,163 @@
+\documentclass[a4paper]{article}
+
+%% Language and font encodings
+\usepackage[english]{babel}
+\usepackage[utf8x]{inputenc}
+\usepackage[T1]{fontenc}
+
+
+%% Sets page size and margins
+\usepackage[a4paper,top=3cm,bottom=2cm,left=3cm,right=3cm,marginparwidth=1.75cm]{geometry}
+
+%% Useful packages
+\usepackage{amsmath}
+\usepackage{graphicx}
+\usepackage{tikz,pgfplots}
+\usepackage[colorinlistoftodos]{todonotes}
+\usepackage[colorlinks=true, allcolors=blue]{hyperref}
+\usepackage{amsfonts}
+\usepackage{bbm}
+\usepackage{dsfont}
+\usepackage{cancel}
+\usepackage{tikz,tkz-base,tkz-fct}
+\usepackage{pgfplots}
+\newcommand{\prob}{\mathbb{P}}
+\newtheorem{definicion}{Definición}
+\newtheorem{teorema}{Teorema}
+\newtheorem{ejemplo}{Ejemplo}
+\DeclareMathOperator*{\argmax}{Arg\,max}
+\newtheorem{lem}{Lema}
+\newtheorem{prop}{Proposici\'on}
+\newtheorem{cor}{Corolario}
+\newtheorem{dem}{Demostración}
+\numberwithin{equation}{subsection}
+\numberwithin{definicion}{subsection}
+\newtheorem{obs}{Observación}
+
+
+%% Aquí se pueden definir nuevas abreviaturas para algunos comandos
+
+\def\sen{{\rm sen\mspace{1.5mu}}}
+\def\C{\mathbb C}
+\def\R{\mathbb R}
+\def\N{\mathbb N}
+\def\Q{\mathbb Q}
+\def\Z{\mathbb Z}
+\def\V{\mathbb V}
+\def\E{\mathbb E}
+\def\to{\rightarrow}
+\newcommand{\pb}{\mathbb{P}}
+
+
+
+\newcommand{\ds}{\displaystyle}
+
+
+%Para hacer normas en tex
+
+\providecommand{\norm}[1]{\lVert#1\rVert}
+\providecommand{\normm}[1]{\bigg\lVert#1\bigg\rVert}
+
+
+%integrales bacanes
+\usepackage{ esint }
+
+%Para poner en negrita en modo matemático
+\newcommand{\negri}{\boldsymbol}
+
+
+
+
+\title{Simulación Estocástica}
+\author{Clase 15}
+\date{10 de septiembre de 2019}
+
+\begin{document}
+\maketitle
+
+\section{Algoritmos estocásticos usando cadenas de Markov}
+El objetivo de este capítulo es presentar algunos alrotimos basados en la simulación de cadenas de Markov. Supondremos en todo momento que todas las cadenas de Markov toman valores en un conjunto $E$, finito.
+
+\subsection{Markov chain Monte Carlo (M.C.M.C.)}
+Se desea simular una variable aleatoria con ley $\pi \in \mathcal{P}(E)$, en muchas situaciones esto es muy costoso computacionalmente. Por ejemplo, si $E$ es finito, pero muy grande, y $\pi$ se conoce salvo constante multiplicativa, nisiquiera podría ser posible calcular la constante $\sum_{x\in E}\pi_x$ que normaliza $\pi$.\\ \newline
+En tal caso se porpone: simular una cadena de Markov con alguna matriz de transición $P$, que posee a $\pi$ como probabilidad invariante.\\ \newline
+Si se desea aproximar $\sum_{x\in E} f(x)\pi_x$, y $(X_n)_n$ es una $P$-C.M., gracias al teorema ergódico, tenemos
+\[\frac{1}{N} \sum_{n=1}^N f(X_n) \approx \sum_{x\in E}f(x)\pi_x,\hspace{0.3cm}(M.C.M.C.)\]
+Para encontrar $P$ que tenga a $\pi$ como probabilidad invariante, es suficiente imponer las ecuaciones de balanceo detallado:
+\begin{equation}
+    \pi_x P_{xy} = \pi_y P_{yx},\hspace{0.2cm}\forall\,x,y\in E
+    \label{clase15_1}
+\end{equation}
+Con esto en mente, se propone el siguiente método: Dada $R$, una matriz de transición markoviana arbitraria sobre $E$. Entonces las fórmulas
+\begin{equation}
+    \begin{cases}
+        P_{xy} = R_{xy}\wedge \left(\frac{\pi_y}{\pi_x}R_{yx}\right), & x \neq y,\\
+        P_{xx} = 1-\sum_{x\neq y}P_{xy}
+    \end{cases}
+    \label{clase15_2}
+\end{equation}
+(donde $a\wedge b = inf(a,b)$), definen una matriz Markoviana $P$, tal que cumpla \ref{clase15_1}, para cada $x,y\in E$. La irreducibilidad de $R$ no es suficiente para asegurar la de $P$, para eso necesitamos, para cada $x\neq y$ que exista $n\geq 1$ y $\{x_0,\cdots,x_n\} \subset E$ con $x_0 = x$ y $x_n=y$ tal que
+\[R_{x_{k-1}x_k}\wedge R_{x_kx_{k-1}}\,>0,\hspace{0.3cm}\forall\,1\leq k\leq n.\]
+¿Cómo elegir $R$ en la práctica? Se escoge un grafo no dirigido $G$ sobre $E$, tal que para todos $x,y\in E$, existen $n\in \N$, $x_1,\cdots,x_{n+1}$, tal que $x_1=x$, $x_{n+1}=y$ y para todo $1\leq k\leq n$, $(x_k,x_{k+1})\in G$ (camino de $x$ a $y$), y elegimos $R$ de la siguiente forma:
+\[R_{xy} >0\,\Longleftrightarrow\,(x,y)\in G.\]
+Entonces la matriz $P$ definida como \ref{clase15_2} es irreducible.\\ \newline
+
+Existen dos elecciones clásicas de $R$ para un grafo $G$ dado:
+\begin{itemize}
+    \item \textbf{Gibbs sampler: }
+    \[R_{xy} = \begin{cases}
+                \left(\sum_{\{z;\,(x,z)\in G\}}\pi_z\right)^{-1}\pi_y, & \text{si }(x,y)\in G,\\
+                0, & \text{si }(x,y) \notin G.
+                \end{cases}\]
+    \item \textbf{Algoritmo Metrópolis: }
+    \[R_{xy} = \begin{cases}
+                (n_x)^{-1}, & \text{si }(x,y)\in G\\
+                0, & \text{si }(x,y)\notin G,
+                \end{cases}\]
+    donde $n_x = |\{z;\,(x,z)\in G\}|$.
+\end{itemize}
+\textbf{Observación: }Para que el método sea práctico, debe ser computacionalmente eficiente sumlar las transiciones de $R$.\\ \newline
+
+Todo lo anterior dda lugar al siguiente algoritmo para simular  la $P$-CMH.:
+\begin{enumerate}
+    \item Elegir grafo $G$ y la matriz $R$ cumpliendo lo recién descrito.
+    \item Escoger punto de partida $x_0$ a gusto.
+    \item Iterar. Dado$X_n=x$, escoger $y=Y_n$ de acuerdo a la ley de probabilidad $R_x$.
+    \item Elegir $X_{n+1}$ de la siguiente forma
+    \[X_{n+1}= \begin{cases}
+                Y_n, & \text{con probabilidad } \frac{\pi_yR_{yx}}{\pi_xR_{xy}}\wedge 1,\\
+                \\
+                X_n, & \text{con probabilidad }1- \left(\frac{\pi_yR_{yx}}{\pi_xR_{xy}}\wedge 1\right).
+                \end{cases}\]
+\end{enumerate}
+Una forma de hacer lo anterior es considerar una variable aleatoria $U_n$ uniforme en $[0,1]$ e independiente de las demás variables, y definir
+\[X_{n+1} = \mathbbm{1}_{\{U_n\leq \pi_yR_{yx}/\pi_xR-{xy}\}}Y_n + \mathbbm{1}_{\{U_n > \pi_yR_{yx}/\pi_xR_{xy}\}}X_n.\]
+\textbf{Observación: }La dependencia de $\pi$ es mediante el cociente $\pi_y/\pi_x$, luego basta conocer $\pi$ salvo constante multiplicativa.
+\begin{ejemplo}[Modelo Ising]
+Es uno de los más populares modelos de la física estadística. Dado $N\in \N$ ($N$ lo supondremos grande), sea 
+\[\Lambda = \Lambda_N = \{-N,\cdots,N\}^2 \subset \Z^2,\]
+cuya frontera es es $\partial \Lambda =\Lambda_N \textbackslash \Lambda_{N-1}$, y definimos el \textit{espacio de configuraciones} como
+\[E = \{-1,1\}^{\Lambda}.\]
+De modo que $\forall\,m\in \Lambda$ y $\forall\,x\in E$, $x(m)\in \{-1,1\}$ denota el \textit{spin} del sitio $m\in \Lambda$.\\
+Para $x\in E$, definimos 
+\[H(x) = \frac{1}{2}\sum_{\overset{m,m'\in\Lambda}{|m-m'|=1} }|x(m)-x(m')|^2.\]
+Sea
+\[E^{+} = \{x \in E;\,x(m)=1,\,\forall m \in \partial \Lambda\}.\]
+Supongamos que queremos simular la siguiente distribución:
+\[\pi_x = \frac{e^{-\beta H(x)}}{Z(\beta)}\hspace{0.3cm}\forall x\in E,\]
+donde $\beta >0$ es un parámetro ($1/\beta$ es la temperatura), y 
+\[Z(\beta) = \sum_{x\in E}e^{-\beta H(x)}.\]
+Note que, incluso para un valor de $N$ no tan grande, el cálsulo de $Z(\beta)$ es imposible. Por ejemplo, para $N=10$:
+\[|E| = |\{-1,1\}^{\Lambda}| = 2^{|\lambda|}\]
+\[= 2^{(2(N-1)+1)^2} \approx 2^{4N^2} = 2^{ 400}\]
+\[=(2^{10})^{40} \approx (10^3)^{40} = 10^{120}\]
+Usaremos MCMC. sobre el siguiente grafo $G$: $xy \in G$ ssi $x$ e $y$ difieren en exáctemente un sitio, esto es, existe $m_0 \in \Lambda \textbackslash \Partial \Lambda$ tal que $x(m_0) \neq y(m-0)$ y $x(m)=y(m)$ $\forall\,m\neq m_0$.\\
+Usando el algoritmo metrópolis:
+\[R_{xy} = \begin{cases}
+|\Lambda \textbackslash \partial \Lambda |^{-1} = \frac{1}{(2N-1)^2}, & xy\in G\\
+0, & xy \notin G
+\end{cases}\]
+En el paso $4)$ del algoritmo, la expresión de $\frac{\pi_y}{\pi_x}\frac{R_{yx}}{R_{xy}}$ se simplifica bastante:
+\[\forall\,xy\in G,\,\,\frac{\pi_y}{\pi_x}\frac{R_{yx}}{R_{xy}} = \frac{e^{-\beta H(y)}/Z(\beta)}{e^{-\beta H(x)}/Z(\beta)} \frac{1/(2N-1)^{2}}{1/(2N-1)^{2}} = e^{-\beta(H(y)-H(x))}\]
+\end{ejemplo}
+\end{document}
